@@ -1,0 +1,40 @@
+# ===== Dependencies (reinstalled with composer install / npm install) =====
+**/node_modules/
+backend/vendor/
+
+# ===== Environment files and secrets — NEVER commit these =====
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+*.pem
+*.key
+*.p8
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
+
+# ===== Laravel generated / runtime =====
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+backend/public/storage
+backend/database/*.sqlite
+
+# ===== Expo / React Native build output =====
+frontend/.expo/
+frontend/dist/
+frontend/web-build/
+frontend/.expo-shared/
+
+# ===== OS / editor junk =====
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-error.log*
