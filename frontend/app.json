@@ -19,7 +19,7 @@
       "package": "com.ibrahimkihiyo.smartinventory",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4f46e5"
       },
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan"

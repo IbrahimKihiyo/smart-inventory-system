@@ -2,7 +2,7 @@
 
 import React, { useState, useContext, useRef } from 'react';
 import {
-  Text, View, TextInput, TouchableOpacity,
+  Text, View, TextInput, TouchableOpacity, Image,
   ActivityIndicator, KeyboardAvoidingView, ScrollView,
 } from 'react-native';
 import { AuthContext } from '../../src/context/AuthContext';
@@ -72,6 +72,14 @@ const Login = ({ navigation }) => {
       >
         <View className="flex-row justify-end mb-4">
           <LanguageSwitcher />
+        </View>
+
+        <View className="flex-row items-center mb-8">
+          <Image
+            source={require('../../assets/icon.png')}
+            style={{ width: 56, height: 56, borderRadius: 16 }}
+          />
+          <Text className="text-2xl font-extrabold text-slate-800 ml-3 tracking-tight">MY SHOP</Text>
         </View>
 
         <View className="mb-10">
