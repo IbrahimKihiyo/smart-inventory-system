@@ -246,6 +246,22 @@ export const translations = {
     // Payment methods
     'method.cash': 'Cash',
     'method.credit': 'Credit',
+
+    'credit.title': 'Credit Sale',
+    'credit.subtitle': 'Borrower pays later',
+    'credit.itemsCredited': 'Items being credited',
+    'credit.totalOwed': 'Total Owed',
+    'credit.borrowerInfo': 'Borrower Information',
+    'credit.fullName': 'Full Name',
+    'credit.mobile': 'Mobile Number',
+    'credit.payBefore': 'Pay Before Date',
+    'credit.done': 'Done',
+    'credit.cancel': 'Cancel',
+    'credit.record': 'Record Credit Sale',
+    'credit.nameRequired': 'Borrower name is required.',
+    'credit.phoneRequired': 'Mobile number is required.',
+    'credit.phoneInvalid': 'Enter a valid mobile number.',
+    'credit.submitError': 'Could not record credit sale.',
     'method.mobile': 'Mobile Money',
 
     // Expiry prompt (shown on the phone date field)
@@ -504,6 +520,22 @@ export const translations = {
     // Payment methods
     'method.cash': 'Taslimu',
     'method.credit': 'Mkopo',
+
+    'credit.title': 'Mauzo ya Mkopo',
+    'credit.subtitle': 'Mkopaji atalipa baadaye',
+    'credit.itemsCredited': 'Bidhaa zinazokopeshwa',
+    'credit.totalOwed': 'Jumla ya Deni',
+    'credit.borrowerInfo': 'Taarifa za Mkopaji',
+    'credit.fullName': 'Jina Kamili',
+    'credit.mobile': 'Namba ya Simu',
+    'credit.payBefore': 'Tarehe ya Mwisho wa Kulipa',
+    'credit.done': 'Sawa',
+    'credit.cancel': 'Ghairi',
+    'credit.record': 'Rekodi Mauzo ya Mkopo',
+    'credit.nameRequired': 'Jina la mkopaji linahitajika.',
+    'credit.phoneRequired': 'Namba ya simu inahitajika.',
+    'credit.phoneInvalid': 'Weka namba sahihi ya simu.',
+    'credit.submitError': 'Imeshindwa kurekodi mauzo ya mkopo.',
     'method.mobile': 'Pesa za Simu',
 
     // Expiry prompt

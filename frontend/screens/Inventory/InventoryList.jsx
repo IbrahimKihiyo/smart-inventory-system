@@ -450,8 +450,9 @@ const InventoryList = () => {
         </View>
       ) : (
         <ScrollView
+          style={{ flex: 1 }}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: cartProducts.length > 0 ? 180 : 32 }}
+          contentContainerStyle={{ paddingBottom: 16 }}
         >
           {filteredProducts.length === 0 ? (
             <View style={styles.emptyCard}>
@@ -938,10 +939,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   checkoutBar: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
+    marginTop: 8,
+    marginBottom: 12,
     backgroundColor: '#1E293B',
     borderRadius: 16,
     padding: 14,

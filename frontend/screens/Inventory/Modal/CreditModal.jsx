@@ -12,8 +12,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker'; // Import
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axiosClient from '../../../src/services/axiosClient';
+import { useLanguage } from '../../../src/context/LanguageContext';
 
 const PURPLE = '#7C3AED';
 const DEFAULT_CURRENCY = 'TZS';
@@ -27,16 +28,16 @@ const CreditModal = ({
   totalAmount,
   currency,
 }) => {
+  const { t } = useLanguage();
   const [borrowerName, setBorrowerName] = useState('');
   const [borrowerPhone, setBorrowerPhone] = useState('');
-  const [payBefore, setPayBefore] = useState(new Date()); // New State
-  const [showPicker, setShowPicker] = useState(false); // New State
+  const [payBefore, setPayBefore] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [displayTotalAmount, setDisplayTotalAmount] = useState(0);
   const [errors, setErrors] = useState({});
 
-  // ... (Keep existing helper functions: normalizeCurrency, convertAmount, buildTransactionItems)
   const normalizeCurrency = (value) => {
     return (value || DEFAULT_CURRENCY).toString().trim().toUpperCase();
   };
@@ -56,6 +57,13 @@ const CreditModal = ({
   const cartCurrencies = [...new Set(cartProducts.map((p) => normalizeCurrency(p.currency || currency)))];
   const isMixedCurrency = cartCurrencies.length > 1;
   const transactionCurrency = isMixedCurrency ? DEFAULT_CURRENCY : (cartCurrencies[0] || normalizeCurrency(currency));
+
+  // YYYY-MM-DD for the web date input
+  const toYMD = (dateObj) => {
+    if (!dateObj) return '';
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    return `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}`;
+  };
 
   const buildTransactionItems = async (convertToTzs) => {
     const items = await Promise.all(
@@ -95,11 +103,11 @@ const CreditModal = ({
 
   const validate = () => {
     const newErrors = {};
-    if (!borrowerName.trim()) newErrors.name = 'Borrower name is required.';
+    if (!borrowerName.trim()) newErrors.name = t('credit.nameRequired');
     if (!borrowerPhone.trim()) {
-      newErrors.phone = 'Mobile number is required.';
+      newErrors.phone = t('credit.phoneRequired');
     } else if (!/^\+?\d{9,15}$/.test(borrowerPhone.trim())) {
-      newErrors.phone = 'Enter a valid mobile number.';
+      newErrors.phone = t('credit.phoneInvalid');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -113,17 +121,17 @@ const CreditModal = ({
       await axiosClient.post('/transactions/credit', {
         borrower_name: borrowerName.trim(),
         borrower_phone: borrowerPhone.trim(),
-        pay_before: payBefore.toISOString(), // Sent as ISO string
+        pay_before: payBefore.toISOString(),
         items,
         amount: total,
         currency: transactionCurrency,
       });
 
-      handleClose(); // Use internal reset
+      handleClose();
       onSuccess();
     } catch (error) {
       console.error(error.response?.data || error.message);
-      setErrors({ submit: 'Could not record credit sale.' });
+      setErrors({ submit: t('credit.submitError') });
     } finally {
       setLoading(false);
     }
@@ -132,7 +140,8 @@ const CreditModal = ({
   const handleClose = () => {
     setBorrowerName('');
     setBorrowerPhone('');
-    setPayBefore(new Date()); // Reset date
+    setPayBefore(new Date());
+    setShowPicker(false);
     setErrors({});
     setDisplayTotalAmount(0);
     setSummaryLoading(false);
@@ -147,17 +156,16 @@ const CreditModal = ({
             <View style={styles.headerLeft}>
               <View style={styles.iconBadge}><Ionicons name="person-outline" size={20} color={PURPLE} /></View>
               <View>
-                <Text style={styles.title}>Credit Sale</Text>
-                <Text style={styles.subtitle}>Borrower pays later</Text>
+                <Text style={styles.title}>{t('credit.title')}</Text>
+                <Text style={styles.subtitle}>{t('credit.subtitle')}</Text>
               </View>
             </View>
             <TouchableOpacity onPress={handleClose} style={styles.closeBtn} disabled={loading}><Ionicons name="close" size={20} color="#64748B" /></TouchableOpacity>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            {/* ... Summary Section ... */}
             <View style={styles.summaryBox}>
-                <Text style={styles.summaryLabel}>Items being credited</Text>
+                <Text style={styles.summaryLabel}>{t('credit.itemsCredited')}</Text>
                 {cartProducts.map((p) => (
                     <View key={p.id} style={styles.summaryRow}>
                         <Text style={styles.summaryItem} numberOfLines={1}>{p.name} × {cart[p.id]}</Text>
@@ -166,60 +174,109 @@ const CreditModal = ({
                 ))}
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryRow}>
-                    <Text style={styles.summaryTotal}>Total Owed</Text>
+                    <Text style={styles.summaryTotal}>{t('credit.totalOwed')}</Text>
                     <Text style={styles.summaryTotalAmount}>{isMixedCurrency ? (summaryLoading ? '...' : `${DEFAULT_CURRENCY} ${displayTotalAmount.toLocaleString()}`) : `${transactionCurrency} ${Number(totalAmount || 0).toLocaleString()}`}</Text>
                 </View>
             </View>
 
-            <Text style={styles.sectionTitle}>Borrower Information</Text>
+            <Text style={styles.sectionTitle}>{t('credit.borrowerInfo')}</Text>
 
             {/* Input Name */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Full Name *</Text>
+              <Text style={styles.label}>{t('credit.fullName')} *</Text>
               <View style={[styles.inputWrapper, errors.name && styles.inputError]}>
                 <Ionicons name="person-outline" size={16} color="#94A3B8" />
-                <TextInput style={styles.input} placeholder="e.g. John Doe" value={borrowerName} onChangeText={setBorrowerName} editable={!loading} />
+                <TextInput style={styles.input} value={borrowerName} onChangeText={setBorrowerName} editable={!loading} />
               </View>
+              {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
             </View>
 
             {/* Input Phone */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Mobile Number *</Text>
+              <Text style={styles.label}>{t('credit.mobile')} *</Text>
               <View style={[styles.inputWrapper, errors.phone && styles.inputError]}>
                 <Ionicons name="call-outline" size={16} color="#94A3B8" />
-                <TextInput style={styles.input} placeholder="e.g. +255712345678" value={borrowerPhone} onChangeText={setBorrowerPhone} keyboardType="phone-pad" editable={!loading} />
+                <TextInput style={styles.input} value={borrowerPhone} onChangeText={setBorrowerPhone} keyboardType="phone-pad" editable={!loading} />
               </View>
+              {errors.phone ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
             </View>
 
-            {/* Pay Before Date Picker */}
+            {/* Pay Before Date — HTML date input on web, native picker on device */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Pay Before Date *</Text>
-              <TouchableOpacity style={styles.inputWrapper} onPress={() => setShowPicker(true)}>
-                <Ionicons name="calendar-outline" size={16} color="#94A3B8" />
-                <Text style={styles.input}>{payBefore.toLocaleDateString()}</Text>
-              </TouchableOpacity>
-              {showPicker && (
-                <DateTimePicker
-                    value={payBefore}
-                    mode="date"
-                    display="default"
-                    minimumDate={new Date()} // Add this line to block past dates
-                    onChange={(event, date) => {
-                    setShowPicker(false);
-                    if (date) {
-                        setPayBefore(date);
-                    }
-                    }}
+              <Text style={styles.label}>{t('credit.payBefore')} *</Text>
+              {Platform.OS === 'web' ? (
+                <input
+                  type="date"
+                  value={toYMD(payBefore)}
+                  min={toYMD(new Date())}
+                  onChange={(e) => e.target.value && setPayBefore(new Date(e.target.value + 'T12:00:00'))}
+                  style={{
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: 10,
+                    padding: '13px 12px',
+                    fontSize: 14,
+                    color: '#0F172A',
+                    fontFamily: 'inherit',
+                  }}
                 />
-               )}
-              
+              ) : (
+                <>
+                  <TouchableOpacity style={styles.inputWrapper} onPress={() => setShowPicker(true)}>
+                    <Ionicons name="calendar-outline" size={16} color="#94A3B8" />
+                    <Text style={styles.input}>{payBefore.toLocaleDateString()}</Text>
+                  </TouchableOpacity>
+
+                  {Platform.OS === 'android' && showPicker && (
+                    <DateTimePicker
+                      value={payBefore}
+                      mode="date"
+                      display="default"
+                      minimumDate={new Date()}
+                      onChange={(event, date) => { setShowPicker(false); if (date) setPayBefore(date); }}
+                    />
+                  )}
+
+                  {Platform.OS === 'ios' && (
+                    <Modal transparent visible={showPicker} animationType="slide" onRequestClose={() => setShowPicker(false)}>
+                      <View style={styles.pickerRoot}>
+                        <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setShowPicker(false)} />
+                        <View style={styles.pickerSheet}>
+                          <View style={styles.pickerHeader}>
+                            <TouchableOpacity onPress={() => setShowPicker(false)}>
+                              <Text style={styles.pickerDone}>{t('credit.done')}</Text>
+                            </TouchableOpacity>
+                          </View>
+                          <DateTimePicker
+                            value={payBefore}
+                            mode="date"
+                            display="spinner"
+                            minimumDate={new Date()}
+                            onChange={(event, date) => { if (date) setPayBefore(date); }}
+                            style={{ height: 216 }}
+                          />
+                        </View>
+                      </View>
+                    </Modal>
+                  )}
+                </>
+              )}
             </View>
 
-            {/* ... Submit / Action Section ... */}
+            {errors.submit ? (
+              <View style={styles.submitError}>
+                <Ionicons name="alert-circle-outline" size={16} color="#DC2626" />
+                <Text style={styles.submitErrorText}>{errors.submit}</Text>
+              </View>
+            ) : null}
+
+            {/* Submit / Action Section */}
             <View style={styles.actions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={handleClose} disabled={loading}><Text style={styles.cancelBtnText}>Cancel</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.cancelBtn} onPress={handleClose} disabled={loading}><Text style={styles.cancelBtnText}>{t('credit.cancel')}</Text></TouchableOpacity>
               <TouchableOpacity style={[styles.confirmBtn, loading && styles.confirmBtnDisabled]} onPress={handleSubmit} disabled={loading}>
-                {loading ? <ActivityIndicator size="small" color="#fff" /> : <><Ionicons name="checkmark-circle-outline" size={18} color="#fff" /><Text style={styles.confirmBtnText}>Record Credit Sale</Text></>}
+                {loading ? <ActivityIndicator size="small" color="#fff" /> : <><Ionicons name="checkmark-circle-outline" size={18} color="#fff" /><Text style={styles.confirmBtnText}>{t('credit.record')}</Text></>}
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -346,4 +403,8 @@ const styles = StyleSheet.create({
   },
   confirmBtnDisabled: { opacity: 0.6 },
   confirmBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  pickerRoot: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
+  pickerSheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 },
+  pickerHeader: { alignItems: 'flex-end', padding: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  pickerDone: { fontSize: 15, fontWeight: '700', color: PURPLE },
 });
