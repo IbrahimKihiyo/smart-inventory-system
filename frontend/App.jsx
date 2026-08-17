@@ -8,7 +8,8 @@ import Toast from 'react-native-toast-message'
 
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import { LanguageProvider } from './src/context/LanguageContext';
-import React, { useContext } from 'react';
+import { registerPWA } from './src/registerPWA';
+import React, { useContext, useEffect } from 'react';
 
 import Login from './screens/Auth/Login';
 import Signup from './screens/Auth/Signup';
@@ -46,6 +47,10 @@ function AppNavigation() {
 }
 
 export default function App() {
+  useEffect(() => {
+    registerPWA();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <LanguageProvider>
