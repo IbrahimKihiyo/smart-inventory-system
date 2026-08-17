@@ -29,19 +29,21 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
     APP_ENV=production \
     APP_DEBUG=false
 
-# GitHub's archive API occasionally returns transient 5xx errors, so retry a
-# few times before giving up rather than failing the whole build on one blip.
-ENV COMPOSER_MAX_PARALLEL_HTTP=6
+# GitHub's archive API is prone to transient 504s under parallel load, so keep
+# downloads serial and, after a few dist attempts, fall back to git clones
+# (a separate, more reliable path) before giving up.
+ENV COMPOSER_MAX_PARALLEL_HTTP=1
 RUN set -eu; \
-    success=0; \
-    for i in 1 2 3 4 5; do \
-      if composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist; then \
-        success=1; break; \
+    ok=0; \
+    for i in 1 2 3 4 5 6; do \
+      if [ "$i" -le 4 ]; then pref=--prefer-dist; else pref=--prefer-source; fi; \
+      if composer install --no-dev --optimize-autoloader --no-interaction $pref; then \
+        ok=1; break; \
       fi; \
-      echo "composer install attempt $i failed; retrying in 15s..."; \
-      sleep 15; \
+      echo "composer install attempt $i ($pref) failed; retrying in 20s..."; \
+      sleep 20; \
     done; \
-    [ "$success" = "1" ] || { echo "composer install failed after 5 attempts"; exit 1; }; \
+    [ "$ok" = "1" ] || { echo "composer install failed after retries"; exit 1; }; \
     npm install --omit=dev
 
 # Render supplies the port to listen on in $PORT.
