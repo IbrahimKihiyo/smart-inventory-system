@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && docker-php-ext-install pdo_pgsql pgsql zip \
   && rm -rf /var/lib/apt/lists/*
 
-# ---- Node 20 (for Browsershot's puppeteer bridge) ---------------------------
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+# ---- Node 22 (for Browsershot's puppeteer bridge) ---------------------------
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
   && apt-get install -y --no-install-recommends nodejs \
   && rm -rf /var/lib/apt/lists/*
 
