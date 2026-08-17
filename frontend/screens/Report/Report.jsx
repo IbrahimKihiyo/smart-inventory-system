@@ -12,6 +12,7 @@ import * as Sharing from 'expo-sharing';
 
 import axiosClient from '../../src/services/axiosClient';
 import { useLanguage } from '../../src/context/LanguageContext';
+import DateField from '../../src/components/DateField';
 import { Buffer } from 'buffer';
 
 const Report = () => {
@@ -85,47 +86,33 @@ const Report = () => {
 
   const renderDateFilter = () => (
     <View style={styles.filterContainer}>
-      <TouchableOpacity style={styles.dateBtn} onPress={() => setShowStartPicker(true)}>
-        <Text style={styles.dateBtnLabel}>{t('dash.from')}</Text>
-        <Text style={styles.dateBtnValue}>{formatDateLabel(startDate)}</Text>
-      </TouchableOpacity>
+      <DateField
+        label={t('dash.from')}
+        value={startDate}
+        valueText={formatDateLabel(startDate)}
+        onChange={setStartDate}
+        maximumDate={endDate || new Date()}
+        containerStyle={styles.dateBtn}
+        labelStyle={styles.dateBtnLabel}
+        valueStyle={styles.dateBtnValue}
+      />
 
-      <TouchableOpacity style={styles.dateBtn} onPress={() => setShowEndPicker(true)}>
-        <Text style={styles.dateBtnLabel}>{t('dash.to')}</Text>
-        <Text style={styles.dateBtnValue}>{formatDateLabel(endDate)}</Text>
-      </TouchableOpacity>
+      <DateField
+        label={t('dash.to')}
+        value={endDate}
+        valueText={formatDateLabel(endDate)}
+        onChange={setEndDate}
+        minimumDate={startDate || undefined}
+        maximumDate={new Date()}
+        containerStyle={styles.dateBtn}
+        labelStyle={styles.dateBtnLabel}
+        valueStyle={styles.dateBtnValue}
+      />
 
       {(startDate || endDate) && (
         <TouchableOpacity style={styles.clearBtn} onPress={clearFilters}>
           <Ionicons name="close-circle" size={20} color="#D32F2F" />
         </TouchableOpacity>
-      )}
-
-      {showStartPicker && (
-        <DateTimePicker
-          value={startDate || new Date()}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'inline' : 'default'}
-          maximumDate={endDate || new Date()}
-          onChange={(event, date) => {
-            setShowStartPicker(false);
-            if (date) setStartDate(date);
-          }}
-        />
-      )}
-
-      {showEndPicker && (
-        <DateTimePicker
-          value={endDate || new Date()}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'inline' : 'default'}
-          minimumDate={startDate || undefined}
-          maximumDate={new Date()}
-          onChange={(event, date) => {
-            setShowEndPicker(false);
-            if (date) setEndDate(date);
-          }}
-        />
       )}
     </View>
   );

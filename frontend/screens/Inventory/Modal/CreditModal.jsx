@@ -183,7 +183,7 @@ const CreditModal = ({
 
             {/* Input Name */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>{t('credit.fullName')} *</Text>
+              <Text style={styles.label}>{t('credit.fullName')}</Text>
               <View style={[styles.inputWrapper, errors.name && styles.inputError]}>
                 <Ionicons name="person-outline" size={16} color="#94A3B8" />
                 <TextInput style={styles.input} value={borrowerName} onChangeText={setBorrowerName} editable={!loading} />
@@ -193,7 +193,7 @@ const CreditModal = ({
 
             {/* Input Phone */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>{t('credit.mobile')} *</Text>
+              <Text style={styles.label}>{t('credit.mobile')}</Text>
               <View style={[styles.inputWrapper, errors.phone && styles.inputError]}>
                 <Ionicons name="call-outline" size={16} color="#94A3B8" />
                 <TextInput style={styles.input} value={borrowerPhone} onChangeText={setBorrowerPhone} keyboardType="phone-pad" editable={!loading} />
@@ -203,7 +203,7 @@ const CreditModal = ({
 
             {/* Pay Before Date — HTML date input on web, native picker on device */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>{t('credit.payBefore')} *</Text>
+              <Text style={styles.label}>{t('credit.payBefore')}</Text>
               {Platform.OS === 'web' ? (
                 <input
                   type="date"
