@@ -104,8 +104,6 @@ const TenantRegister = ({ navigation }) => {
         </Text>
         <TextInput
           className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-4 text-slate-800"
-          placeholder="Acme Corporation"
-          placeholderTextColor="#94a3b8"
           value={companyName}
           onChangeText={setCompanyName}
           editable={!isSubmitting}
@@ -118,8 +116,6 @@ const TenantRegister = ({ navigation }) => {
         </Text>
         <TextInput
           className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-4 text-slate-800"
-          placeholder="John Doe"
-          placeholderTextColor="#94a3b8"
           value={adminName}
           onChangeText={setAdminName}
           editable={!isSubmitting}
@@ -132,8 +128,6 @@ const TenantRegister = ({ navigation }) => {
         </Text>
         <TextInput
           className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-4 text-slate-800"
-          placeholder="admin@company.com"
-          placeholderTextColor="#94a3b8"
           keyboardType="email-address"
           autoCapitalize="none"
           value={adminEmail}
@@ -149,8 +143,6 @@ const TenantRegister = ({ navigation }) => {
         <View className="bg-white border border-slate-200 rounded-2xl mb-4 flex-row items-center px-4">
           <TextInput
             className="flex-1 py-4 text-slate-800"
-            placeholder={t('register.passwordHint')}
-            placeholderTextColor="#94a3b8"
             secureTextEntry={!showPass}
             value={adminPassword}
             onChangeText={setAdminPassword}
@@ -170,8 +162,6 @@ const TenantRegister = ({ navigation }) => {
         <View className="bg-white border border-slate-200 rounded-2xl mb-6 flex-row items-center px-4">
           <TextInput
             className="flex-1 py-4 text-slate-800"
-            placeholder={t('register.repeatPassword')}
-            placeholderTextColor="#94a3b8"
             secureTextEntry={!showConfirm}
             value={confirmPass}
             onChangeText={setConfirmPass}

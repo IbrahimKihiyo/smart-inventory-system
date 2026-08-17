@@ -85,8 +85,6 @@ const Login = ({ navigation }) => {
         </Text>
         <TextInput
           className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-5 text-slate-800"
-          placeholder="acme-corporation"
-          placeholderTextColor="#94a3b8"
           autoCapitalize="none"
           value={tenantSlug}
           onChangeText={setTenantSlug}
@@ -100,8 +98,6 @@ const Login = ({ navigation }) => {
         </Text>
         <TextInput
           className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-5 text-slate-800"
-          placeholder="name@example.com"
-          placeholderTextColor="#94a3b8"
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
@@ -117,8 +113,6 @@ const Login = ({ navigation }) => {
         <View className="bg-white border border-slate-200 rounded-2xl flex-row items-center px-4">
           <TextInput
             className="flex-1 py-4 text-slate-800"
-            placeholder="Enter your password"
-            placeholderTextColor="#94a3b8"
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}

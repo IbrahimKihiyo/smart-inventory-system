@@ -93,8 +93,6 @@ const Signup = ({ navigation }) => {
           </Text>
           <TextInput
             className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-4 text-slate-800"
-            placeholder="acme-corporation"
-            placeholderTextColor="#94a3b8"
             autoCapitalize="none"
             value={tenantSlug}
             onChangeText={setTenantSlug}
@@ -108,8 +106,6 @@ const Signup = ({ navigation }) => {
           </Text>
           <TextInput
             className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-4 text-slate-800"
-            placeholder="John Doe"
-            placeholderTextColor="#94a3b8"
             value={name}
             onChangeText={setName}
             editable={!isSubmitting}
@@ -122,8 +118,6 @@ const Signup = ({ navigation }) => {
           </Text>
           <TextInput
             className="bg-white border border-slate-200 rounded-2xl px-4 py-4 mb-4 text-slate-800"
-            placeholder="name@example.com"
-            placeholderTextColor="#94a3b8"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -139,8 +133,6 @@ const Signup = ({ navigation }) => {
           <View className="bg-white border border-slate-200 rounded-2xl mb-4 flex-row items-center px-4">
             <TextInput
               className="flex-1 py-4 text-slate-800"
-              placeholder={t('signup.passwordHint')}
-              placeholderTextColor="#94a3b8"
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
@@ -163,8 +155,6 @@ const Signup = ({ navigation }) => {
           <View className="bg-white border border-slate-200 rounded-2xl flex-row items-center px-4">
             <TextInput
               className="flex-1 py-4 text-slate-800"
-              placeholder={t('register.repeatPassword')}
-              placeholderTextColor="#94a3b8"
               secureTextEntry={!showConfirmPassword}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
