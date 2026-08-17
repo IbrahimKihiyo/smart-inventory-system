@@ -1,0 +1,19 @@
+name: Keep backend awake
+
+# Pings the API during Tanzanian daytime so the free Render instance does not
+# spin down, avoiding the ~30-60s cold start for real users.
+# 04:00-19:59 UTC == 07:00-22:59 EAT. Runs free on a public repo.
+
+on:
+  schedule:
+    - cron: '*/10 4-19 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the API
+        run: |
+          code=$(curl -sS -o /dev/null -w "%{http_code}" https://smart-inventory-api-x8b0.onrender.com/ || echo "000")
+          echo "Ping returned HTTP $code"

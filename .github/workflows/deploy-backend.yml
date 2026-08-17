@@ -1,0 +1,32 @@
+name: Deploy backend to Render
+
+# Render can't receive GitHub webhooks for a repo connected by public URL, so
+# it won't auto-deploy on push. This calls Render's Deploy Hook instead whenever
+# backend code changes, giving true automatic backend deploys.
+#
+# Setup (one time):
+#   1. Render dashboard -> smart-inventory-api -> Settings -> Deploy Hook -> copy the URL
+#   2. GitHub repo -> Settings -> Secrets and variables -> Actions -> New repository secret
+#        Name:  RENDER_DEPLOY_HOOK_URL
+#        Value: <the URL from step 1>
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'render.yaml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL secret is not set — skipping."
+            exit 0
+          fi
+          curl -sS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+          echo "Render deploy triggered."
