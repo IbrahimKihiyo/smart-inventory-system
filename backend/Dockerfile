@@ -29,8 +29,20 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
     APP_ENV=production \
     APP_DEBUG=false
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction \
-  && npm install --omit=dev
+# GitHub's archive API occasionally returns transient 5xx errors, so retry a
+# few times before giving up rather than failing the whole build on one blip.
+ENV COMPOSER_MAX_PARALLEL_HTTP=6
+RUN set -eu; \
+    success=0; \
+    for i in 1 2 3 4 5; do \
+      if composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist; then \
+        success=1; break; \
+      fi; \
+      echo "composer install attempt $i failed; retrying in 15s..."; \
+      sleep 15; \
+    done; \
+    [ "$success" = "1" ] || { echo "composer install failed after 5 attempts"; exit 1; }; \
+    npm install --omit=dev
 
 # Render supplies the port to listen on in $PORT.
 CMD sh -c "php artisan config:clear \
