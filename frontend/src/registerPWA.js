@@ -32,8 +32,10 @@ export function registerPWA() {
   });
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    });
+    const register = () => navigator.serviceWorker.register('/sw.js').catch(() => {});
+    // The app mounts after the window 'load' event has already fired, so
+    // register right away when the document is ready rather than waiting for it.
+    if (document.readyState === 'complete') register();
+    else window.addEventListener('load', register);
   }
 }
