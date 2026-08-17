@@ -29,7 +29,10 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "API_URL": "https://smart-inventory-api-x8b0.onrender.com/api"
+      "API_URL": "https://smart-inventory-api-x8b0.onrender.com/api",
+      "eas": {
+        "projectId": "9bc1b6b4-86a7-4e58-a578-513ac15e3e3e"
+      }
     },
     "plugins": [
       "expo-secure-store",
