@@ -35,6 +35,7 @@ export const translations = {
     'login.register': 'Register',
     'login.missingFields': 'Missing Fields',
     'login.fillAll': 'Please fill in all fields.',
+    'login.tooMany': 'Too many attempts. Please wait a moment and try again.',
 
     // Register (workspace)
     'register.title': 'Create Workspace',
@@ -292,6 +293,7 @@ export const translations = {
     'login.register': 'Jisajili',
     'login.missingFields': 'Sehemu Hazijajazwa',
     'login.fillAll': 'Tafadhali jaza sehemu zote.',
+    'login.tooMany': 'Umejaribu mara nyingi. Tafadhali subiri kidogo kisha ujaribu tena.',
 
     // Register (workspace)
     'register.title': 'Fungua Biashara',

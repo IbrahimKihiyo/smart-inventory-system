@@ -19,14 +19,15 @@ use App\Http\Controllers\ExpiryAlertController;
 use App\Http\Controllers\CreditReminderController;
 
 // ─── Public: Tenant Registration (no tenant context needed) ──────────────────
-Route::post('/tenants/register', [TenantRegistrationController::class, 'register']);
+Route::post('/tenants/register', [TenantRegistrationController::class, 'register'])
+    ->middleware('throttle:10,10');
 Route::post('/pawapay/mobile_payment_callback', [PawaPayController::class, 'mobilePaymentCallback']);
 
 // ─── Tenant Routes (require X-Tenant header) ─────────────────────────────────
 Route::middleware(['tenant'])->group(function () {
 
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login',    [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:20,10');
+    Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:30,1');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);

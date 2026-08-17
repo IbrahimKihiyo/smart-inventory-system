@@ -35,7 +35,9 @@ const Login = ({ navigation }) => {
       console.error('Login error:', err);
       let errorMsg = 'Something went wrong. Please try again.';
 
-      if (err.response?.status === 401) {
+      if (err.response?.status === 429) {
+        errorMsg = t('login.tooMany');
+      } else if (err.response?.status === 401) {
         errorMsg = 'Invalid email or password.';
       } else if (err.response?.status === 404) {
         errorMsg = 'Workspace not found. Check your company slug.';

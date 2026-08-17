@@ -9,6 +9,7 @@ use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -16,6 +17,31 @@ class TenantRegistrationController extends Controller
 {
     public function register(Request $request)
     {
+        // Bot trap: a genuine client never fills this hidden field.
+        if (filled($request->input('website'))) {
+            return response()->json(['message' => 'Request rejected.'], 422);
+        }
+
+        // Reject any field that is not expected, to block tampered requests.
+        $allowed = [
+            'company_name', 'admin_name', 'admin_email',
+            'admin_password', 'admin_password_confirmation', 'website',
+        ];
+        if (count(array_diff(array_keys($request->all()), $allowed)) > 0) {
+            return response()->json(['message' => 'Unexpected fields in the request.'], 422);
+        }
+
+        // Limit how many businesses one address can create: 5 per 10 minutes.
+        $key = 'register:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            return response()->json([
+                'message'     => "Too many attempts. Please wait {$seconds} seconds and try again.",
+                'retry_after' => $seconds,
+            ], 429);
+        }
+        RateLimiter::hit($key, 600);
+
         $validated = $request->validate([
             'company_name'               => 'required|string|max:255',
             'admin_name'                 => 'required|string|max:255',

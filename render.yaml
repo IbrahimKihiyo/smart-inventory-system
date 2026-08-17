@@ -1,0 +1,72 @@
+databases:
+  - name: smart-inventory-db
+    plan: free
+    databaseName: smart_inv
+    user: smart_inv
+
+services:
+  - type: web
+    name: smart-inventory-api
+    runtime: docker
+    plan: free
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    envVars:
+      # Set this one manually in the dashboard (see the deployment guide)
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+
+      # Database — filled automatically from the free PostgreSQL above
+      - key: DB_CONNECTION
+        value: landlord
+      - key: DB_HOST
+        fromDatabase:
+          name: smart-inventory-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: smart-inventory-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: smart-inventory-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: smart-inventory-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: smart-inventory-db
+          property: password
+
+      # PDF report browser
+      - key: CHROME_PATH
+        value: /usr/bin/chromium
+
+      # File-based session/cache/queue (no extra services needed)
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SESSION_DOMAIN
+        value: "null"
+
+      # Optional integrations — set the secret values in the dashboard
+      - key: PAWAPAY_TOKEN
+        sync: false
+      - key: PAWAPAY_BASE_URL
+        value: https://api.sandbox.pawapay.io
+      - key: PAWAPAY_DEPOSIT_BASE_URL
+        value: https://api.sandbox.pawapay.io/v2/deposits
+      - key: EXCONVERT_API_KEY
+        sync: false
