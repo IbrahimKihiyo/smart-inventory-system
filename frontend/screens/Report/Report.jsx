@@ -59,10 +59,28 @@ const Report = () => {
         params.end_date = formatDate(endDate);
       }
 
-      const response = await axiosClient.get('/invoice/pdf', { 
+      const response = await axiosClient.get('/invoice/pdf', {
         params,
-        responseType: 'arraybuffer' 
+        responseType: 'arraybuffer'
       });
+
+      // On web, expo-file-system / Sharing are unavailable — open the PDF in a
+      // new tab (viewable and printable), falling back to a direct download.
+      if (Platform.OS === 'web') {
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const win = window.open(url, '_blank');
+        if (!win) {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ripoti-${Date.now()}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        return;
+      }
 
       const base64 = Buffer.from(response.data, 'binary').toString('base64');
       const fileUri = FileSystem.documentDirectory + `invoice-${Date.now()}.pdf`;
