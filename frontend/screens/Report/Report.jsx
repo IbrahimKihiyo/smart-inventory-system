@@ -127,11 +127,6 @@ const Report = () => {
         valueStyle={styles.dateBtnValue}
       />
 
-      {(startDate || endDate) && (
-        <TouchableOpacity style={styles.clearBtn} onPress={clearFilters}>
-          <Ionicons name="close-circle" size={20} color="#D32F2F" />
-        </TouchableOpacity>
-      )}
     </View>
   );
 
