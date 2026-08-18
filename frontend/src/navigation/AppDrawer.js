@@ -18,6 +18,7 @@ import CreditorsList from '../../screens/Creditors/CreditorsList';
 import Report from '../../screens/Report/Report';
 import BuyingAdvisor from '../../screens/BuyingAdvisor/BuyingAdvisor';
 import ExpiryAlerts from '../../screens/Alerts/ExpiryAlerts';
+import AssistantChat from '../../screens/Assistant/AssistantChat';
 
 const DRAWER_WIDTH = 270;
 
@@ -29,6 +30,7 @@ const SCREENS = [
   { name: 'Transactions', labelKey: 'nav.transactions', component: TransactionList, icon: 'swap-horizontal-outline', iconFocused: 'swap-horizontal' },
   { name: 'Creditors', labelKey: 'nav.creditors', component: CreditorsList, icon: 'people-outline', iconFocused: 'people' },
   { name: 'Buying Advisor', labelKey: 'nav.buyingAdvisor', component: BuyingAdvisor, icon: 'trending-up-outline', iconFocused: 'trending-up' },
+  { name: 'Assistant', labelKey: 'nav.assistant', component: AssistantChat, icon: 'chatbubbles-outline', iconFocused: 'chatbubbles' },
   { name: 'Report', labelKey: 'nav.report', component: Report, icon: 'documents-outline', iconFocused: 'documents' },
 
 ];

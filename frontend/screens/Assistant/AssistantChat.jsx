@@ -1,0 +1,227 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import axiosClient from '../../src/services/axiosClient';
+import { useLanguage } from '../../src/context/LanguageContext';
+
+const PRIMARY = '#4F46E5';
+const LOW_STOCK_LEVEL = 10;
+
+// A simple bilingual assistant. It reads the shop's own data through the
+// existing endpoints and answers common questions, so the owner can make
+// quick decisions without opening several screens.
+export default function AssistantChat() {
+  const { t } = useLanguage();
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    setMessages([{ id: 'welcome', from: 'bot', text: t('bot.greeting') }]);
+  }, []);
+
+  useEffect(() => {
+    scrollRef.current?.scrollToEnd({ animated: true });
+  }, [messages, busy]);
+
+  const push = (from, text) =>
+    setMessages((prev) => [...prev, { id: String(Date.now()) + Math.random(), from, text }]);
+
+  const money = (n) => `TZS ${Number(n || 0).toLocaleString()}`;
+
+  const asList = (data) =>
+    Array.isArray(data) ? data : data?.data || data?.products || data?.categories || [];
+
+  const detectIntent = (raw) => {
+    const s = (raw || '').toLowerCase();
+    const has = (...keys) => keys.some((k) => s.includes(k));
+    if (has('help', 'what can you', 'msaada', 'unaweza', 'unafanya', 'nisaidie')) return 'help';
+    if (has('hello', 'hi ', 'hey', 'habari', 'mambo', 'vipi', 'hujambo', 'salama', 'shikamoo')) return 'greeting';
+    if (has('expir', 'expire', 'kuisha', 'zinazoisha', 'muda wa')) return 'expiry';
+    if (has('low stock', 'out of stock', 'running low', 'hisa', 'stoo', 'pungufu', 'zinakwisha')) return 'lowstock';
+    if (has('debt', 'credit', 'owe', 'borrow', 'deni', 'madeni', 'wadeni', 'mkopo', 'nadai', 'ananidai')) return 'creditors';
+    if (has('profit', 'faida')) return 'profit';
+    if (has('sale', 'sales', 'sold', 'revenue', 'mauzo', 'uza')) return 'sales';
+    if (has('top', 'best', 'most sold', 'popular', 'zaidi', 'bora', 'inayouzwa')) return 'top';
+    if (has('how many product', 'number of product', 'bidhaa ngapi', 'idadi', 'product', 'bidhaa', 'categor', 'kategoria')) return 'inventory';
+    return 'fallback';
+  };
+
+  const answer = async (intent) => {
+    switch (intent) {
+      case 'help':
+        return t('bot.help');
+      case 'greeting':
+        return t('bot.greetingReply');
+      case 'sales': {
+        const m = (await axiosClient.get('/dashboard/metrics')).data.metrics;
+        return t('bot.salesAnswer', {
+          amount: money(m.total_amount_tzs),
+          count: m.total_transactions,
+          qty: m.total_quantity_sold,
+        });
+      }
+      case 'profit': {
+        const m = (await axiosClient.get('/dashboard/metrics')).data.metrics;
+        return t('bot.profitAnswer', { profit: money(m.total_profit) });
+      }
+      case 'creditors': {
+        const m = (await axiosClient.get('/dashboard/metrics')).data.metrics;
+        return t('bot.creditAnswer', { amount: money(m.pending_credit_amount_tzs) });
+      }
+      case 'expiry': {
+        const d = (await axiosClient.get('/products/expiry-alerts')).data;
+        const expired = d.expired || [];
+        const soon = d.expiring_soon || [];
+        if (expired.length === 0 && soon.length === 0) return t('bot.noExpiry');
+        const parts = [];
+        if (expired.length) parts.push(t('bot.expiredList', { items: expired.map((p) => p.name).join(', ') }));
+        if (soon.length) parts.push(t('bot.soonList', { items: soon.map((p) => `${p.name} (${p.days_diff})`).join(', ') }));
+        return parts.join('\n');
+      }
+      case 'lowstock': {
+        const products = asList((await axiosClient.get('/products')).data);
+        const low = products.filter((p) => Number(p.stock) <= LOW_STOCK_LEVEL);
+        if (low.length === 0) return t('bot.noLowStock');
+        return t('bot.lowStockList', { items: low.map((p) => `${p.name} (${p.stock})`).join(', ') });
+      }
+      case 'top': {
+        const m = (await axiosClient.get('/dashboard/metrics')).data.metrics;
+        const top = m.top_products || [];
+        if (top.length === 0) return t('bot.noTop');
+        return t('bot.topList', { items: top.slice(0, 5).map((p) => `${p.name} (${p.total_sold})`).join(', ') });
+      }
+      case 'inventory': {
+        const products = asList((await axiosClient.get('/products')).data);
+        const categories = asList((await axiosClient.get('/categories')).data);
+        return t('bot.inventoryAnswer', { products: products.length, categories: categories.length });
+      }
+      default:
+        return t('bot.fallback');
+    }
+  };
+
+  const respond = async (intent, userText) => {
+    if (busy) return;
+    push('user', userText);
+    setBusy(true);
+    try {
+      push('bot', await answer(intent));
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+      push('bot', t('bot.error'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sendTyped = () => {
+    const q = input.trim();
+    if (!q) return;
+    setInput('');
+    respond(detectIntent(q), q);
+  };
+
+  const chips = [
+    { key: 'sales', label: t('bot.chipSales') },
+    { key: 'profit', label: t('bot.chipProfit') },
+    { key: 'expiry', label: t('bot.chipExpiry') },
+    { key: 'lowstock', label: t('bot.chipLowStock') },
+    { key: 'creditors', label: t('bot.chipCreditors') },
+    { key: 'inventory', label: t('bot.chipInventory') },
+  ];
+
+  return (
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView ref={scrollRef} style={{ flex: 1 }} contentContainerStyle={styles.messages}>
+        {messages.map((m) => (
+          <View key={m.id} style={[styles.row, m.from === 'user' ? styles.rowRight : styles.rowLeft]}>
+            {m.from === 'bot' && (
+              <View style={styles.avatar}><Ionicons name="sparkles" size={15} color="#fff" /></View>
+            )}
+            <View style={[styles.bubble, m.from === 'user' ? styles.userBubble : styles.botBubble]}>
+              <Text style={m.from === 'user' ? styles.userText : styles.botText}>{m.text}</Text>
+            </View>
+          </View>
+        ))}
+        {busy && (
+          <View style={[styles.row, styles.rowLeft]}>
+            <View style={styles.avatar}><Ionicons name="sparkles" size={15} color="#fff" /></View>
+            <View style={[styles.bubble, styles.botBubble]}><ActivityIndicator size="small" color={PRIMARY} /></View>
+          </View>
+        )}
+      </ScrollView>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow} contentContainerStyle={styles.chipsContent}>
+        {chips.map((c) => (
+          <TouchableOpacity key={c.key} style={styles.chip} onPress={() => respond(c.key, c.label)} disabled={busy}>
+            <Text style={styles.chipText}>{c.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <View style={styles.inputBar}>
+        <TextInput
+          style={styles.input}
+          value={input}
+          onChangeText={setInput}
+          placeholder={t('bot.placeholder')}
+          placeholderTextColor="#94A3B8"
+          onSubmitEditing={sendTyped}
+          editable={!busy}
+          returnKeyType="send"
+        />
+        <TouchableOpacity style={[styles.sendBtn, busy && { opacity: 0.5 }]} onPress={sendTyped} disabled={busy}>
+          <Ionicons name="send" size={18} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  messages: { padding: 16, paddingBottom: 8 },
+  row: { flexDirection: 'row', marginBottom: 12, alignItems: 'flex-end', gap: 8 },
+  rowLeft: { justifyContent: 'flex-start' },
+  rowRight: { justifyContent: 'flex-end' },
+  avatar: {
+    width: 28, height: 28, borderRadius: 14, backgroundColor: PRIMARY,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  bubble: { maxWidth: '78%', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16 },
+  botBubble: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderBottomLeftRadius: 4 },
+  userBubble: { backgroundColor: PRIMARY, borderBottomRightRadius: 4 },
+  botText: { fontSize: 14, color: '#0F172A', lineHeight: 20 },
+  userText: { fontSize: 14, color: '#FFFFFF', lineHeight: 20 },
+  chipsRow: { maxHeight: 46, borderTopWidth: 1, borderTopColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
+  chipsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8, alignItems: 'center' },
+  chip: {
+    backgroundColor: '#EEF2FF', borderRadius: 9999, paddingHorizontal: 14, paddingVertical: 7,
+    borderWidth: 1, borderColor: '#C7D2FE',
+  },
+  chipText: { color: PRIMARY, fontSize: 13, fontWeight: '600' },
+  inputBar: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12,
+    borderTopWidth: 1, borderTopColor: '#E2E8F0', backgroundColor: '#FFFFFF',
+  },
+  input: {
+    flex: 1, backgroundColor: '#F1F5F9', borderRadius: 24, paddingHorizontal: 16,
+    height: 44, fontSize: 14, color: '#0F172A',
+  },
+  sendBtn: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: PRIMARY,
+    alignItems: 'center', justifyContent: 'center',
+  },
+});
