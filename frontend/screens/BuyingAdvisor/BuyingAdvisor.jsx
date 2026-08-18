@@ -121,6 +121,40 @@ const BuyingAdvisor = () => {
           )}
         </View>
         <Text style={styles.resultMessage}>{isBuy ? t('advisor.buyMsg') : t('advisor.waitMsg')}</Text>
+
+        <View style={styles.analysisBox}>
+          {result.trend ? (
+            <View style={styles.analysisRow}>
+              <Text style={styles.analysisLabel}>{t('advisor.trend')}</Text>
+              <Text style={styles.analysisValue}>{t('advisor.trend' + result.trend)}</Text>
+            </View>
+          ) : null}
+          {result.margin_at_market_price != null ? (
+            <View style={styles.analysisRow}>
+              <Text style={styles.analysisLabel}>{t('advisor.marginAtPrice')}</Text>
+              <Text style={styles.analysisValue}>{result.margin_at_market_price}%</Text>
+            </View>
+          ) : null}
+          {result.recommended_max_price != null ? (
+            <View style={styles.analysisRow}>
+              <Text style={styles.analysisLabel}>{t('advisor.maxBuy')}</Text>
+              <Text style={styles.analysisValue}>{result.currency} {Number(result.recommended_max_price).toLocaleString()}</Text>
+            </View>
+          ) : null}
+          {result.min_price != null ? (
+            <View style={styles.analysisRow}>
+              <Text style={styles.analysisLabel}>{t('advisor.range')}</Text>
+              <Text style={styles.analysisValue}>{result.currency} {Number(result.min_price).toLocaleString()} - {Number(result.max_price).toLocaleString()}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        {result.warning ? (
+          <View style={styles.warnRow}>
+            <Ionicons name="alert-circle" size={15} color="#DC2626" />
+            <Text style={styles.warnText}>{t('advisor.warn' + result.warning)}</Text>
+          </View>
+        ) : null}
       </View>
     );
   };
@@ -340,4 +374,10 @@ const styles = StyleSheet.create({
   savingText: { fontSize: 12, color: '#16A34A', fontWeight: '600', marginLeft: 'auto' },
   resultMessage: { fontSize: 13, color: '#475569', lineHeight: 19 },
   resultNeutralText: { fontSize: 13, color: '#64748B', flex: 1, lineHeight: 19 },
+  analysisBox: { marginTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(15,23,42,0.06)', paddingTop: 8, gap: 5 },
+  analysisRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  analysisLabel: { fontSize: 12, color: '#64748B' },
+  analysisValue: { fontSize: 12, fontWeight: '700', color: '#0F172A' },
+  warnRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, backgroundColor: '#FEF2F2', borderRadius: 8, padding: 8 },
+  warnText: { fontSize: 12, color: '#DC2626', flex: 1, fontWeight: '600' },
 });

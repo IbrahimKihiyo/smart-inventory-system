@@ -208,6 +208,15 @@ export const translations = {
     // Advisor result messages (built on the client so they can translate)
     'advisor.buyMsg': 'Good time to buy. The market price is below your recent average.',
     'advisor.waitMsg': 'Better to wait. The market price is at or above your recent average.',
+    'advisor.trend': 'Price trend',
+    'advisor.trendRISING': 'Rising',
+    'advisor.trendFALLING': 'Falling',
+    'advisor.trendSTABLE': 'Stable',
+    'advisor.marginAtPrice': 'Margin at this price',
+    'advisor.maxBuy': 'Max buying price',
+    'advisor.range': 'Recent range',
+    'advisor.warnLOSS': 'At this price you would sell at a loss.',
+    'advisor.warnTHIN': 'This price leaves a thin profit margin.',
     'advisor.insufficient': 'Not enough history yet. Record at least 3 purchases to get a recommendation.',
 
     // Transactions
@@ -609,6 +618,15 @@ export const translations = {
     // Advisor result messages
     'advisor.buyMsg': 'Wakati mzuri wa kununua. Bei ya soko iko chini ya wastani wako wa karibuni.',
     'advisor.waitMsg': 'Ni bora kusubiri. Bei ya soko iko sawa au juu ya wastani wako.',
+    'advisor.trend': 'Mwenendo wa bei',
+    'advisor.trendRISING': 'Inapanda',
+    'advisor.trendFALLING': 'Inashuka',
+    'advisor.trendSTABLE': 'Imetulia',
+    'advisor.marginAtPrice': 'Faida kwa bei hii',
+    'advisor.maxBuy': 'Bei ya juu ya kununua',
+    'advisor.range': 'Kiwango cha hivi karibuni',
+    'advisor.warnLOSS': 'Kwa bei hii utauza kwa hasara.',
+    'advisor.warnTHIN': 'Bei hii inaacha faida ndogo.',
     'advisor.insufficient': 'Historia haitoshi bado. Rekodi manunuzi angalau 3 kupata ushauri.',
 
     // Transactions

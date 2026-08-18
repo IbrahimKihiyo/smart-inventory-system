@@ -177,17 +177,52 @@ class PurchasePriceController extends Controller
 
         $isGoodTime = $marketPrice < $average;
 
+        // Extra analysis to support the decision.
+        $sellingPrice = (float) $product->price;
+        $prices   = $recent->pluck('price')->map(fn ($p) => (float) $p);
+        $minPrice = round($prices->min(), 2);
+        $maxPrice = round($prices->max(), 2);
+
+        // Trend from the oldest to the newest price in the sample.
+        $newest = (float) $recent->first()->price;
+        $oldest = (float) $recent->last()->price;
+        $trend  = abs($newest - $oldest) < ($average * 0.02)
+            ? 'STABLE'
+            : ($newest > $oldest ? 'RISING' : 'FALLING');
+
+        // Keep at least a 20% profit margin on the current selling price.
+        $recommendedMax = $sellingPrice > 0 ? round($sellingPrice * 0.8, 2) : null;
+
+        // The profit margin the owner would keep if buying at today's price.
+        $marginAtMarket = $sellingPrice > 0
+            ? round((($sellingPrice - $marketPrice) / $sellingPrice) * 100, 1)
+            : null;
+
+        $warning = null;
+        if ($sellingPrice > 0 && $marketPrice >= $sellingPrice) {
+            $warning = 'LOSS';
+        } elseif ($recommendedMax !== null && $marketPrice > $recommendedMax) {
+            $warning = 'THIN';
+        }
+
         return response()->json([
             'suggestion' => $isGoodTime ? 'BUY' : 'WAIT',
             'message'    => $isGoodTime
                 ? 'Good time to buy. The market price is below your recent average.'
                 : 'Better to wait. The market price is at or above your recent average.',
-            'market_price'       => $marketPrice,
-            'average_last_three' => $average,
-            'difference'         => $difference,
-            'percent_diff'       => $percentDiff,
-            'currency'           => $product->currency,
-            'sample_prices'      => $recent->pluck('price'),
+            'market_price'           => $marketPrice,
+            'average_last_three'     => $average,
+            'difference'             => $difference,
+            'percent_diff'           => $percentDiff,
+            'currency'               => $product->currency,
+            'sample_prices'          => $recent->pluck('price'),
+            'selling_price'          => $sellingPrice,
+            'min_price'              => $minPrice,
+            'max_price'              => $maxPrice,
+            'trend'                  => $trend,
+            'recommended_max_price'  => $recommendedMax,
+            'margin_at_market_price' => $marginAtMarket,
+            'warning'                => $warning,
         ], 200);
     }
 }
