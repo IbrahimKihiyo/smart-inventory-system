@@ -20,7 +20,7 @@ import axiosClient from '../../src/services/axiosClient';
 import AddProductModal from './Modal/AddProductModal';
 import EditProductModal from './Modal/EditProductModal';
 import Toast from 'react-native-toast-message';
-import PawaPayModal from './Modal/PawaPayModal';
+import MobileMoneyModal from './Modal/MobileMoneyModal';
 import CreditModal from './Modal/CreditModal';
 import RecordPurchaseModal from './Modal/RecordPurchaseModal';
 import { useLanguage } from '../../src/context/LanguageContext';
@@ -34,7 +34,7 @@ const InventoryList = () => {
   const { t } = useLanguage();
   const [productModalVisible, setProductModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [pawaPayVisible, setPawaPayVisible] = useState(false);
+  const [mobileMoneyVisible, setMobileMoneyVisible] = useState(false);
   const [creditModalVisible, setCreditModalVisible] = useState(false);
   const [cashConfirmVisible, setCashConfirmVisible] = useState(false);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
@@ -185,7 +185,7 @@ const InventoryList = () => {
         delete newCart[id];
         return newCart;
       });
-      Toast.show({ type: 'success', text1: 'Deleted', text2: 'Product removed successfully.' });
+      Toast.show({ type: 'success', text1: t('toast.deleted'), text2: t('toast.productRemoved') });
     } catch (error) {
       console.error(error.response?.data || error.message);
       Alert.alert('Error', 'Could not delete product. Please try again.');
@@ -316,13 +316,13 @@ const InventoryList = () => {
   };
 
   const handlePaymentSuccess = async () => {
-    setPawaPayVisible(false);
+    setMobileMoneyVisible(false);
     setCart({});
     await fetchProducts();
     Toast.show({
       type: 'success',
-      text1: 'Payment Complete',
-      text2: 'Cart cleared and inventory refreshed.',
+      text1: t('toast.paymentComplete'),
+      text2: t('toast.cartRefreshed'),
     });
   };
 
@@ -331,8 +331,8 @@ const InventoryList = () => {
     await fetchProducts();
     Toast.show({
       type: 'success',
-      text1: 'Cash Payment Recorded',
-      text2: 'Cart cleared and inventory refreshed.',
+      text1: t('toast.cashRecorded'),
+      text2: t('toast.cartRefreshed'),
     });
   };
 
@@ -342,8 +342,8 @@ const InventoryList = () => {
     await fetchProducts();
     Toast.show({
       type: 'success',
-      text1: 'Credit Sale Recorded',
-      text2: 'Borrower info saved. Cart cleared.',
+      text1: t('toast.creditRecorded'),
+      text2: t('toast.creditSaved'),
     });
   };
 
@@ -672,7 +672,7 @@ const InventoryList = () => {
 
             <TouchableOpacity
               style={styles.pawaPayBtn}
-              onPress={() => setPawaPayVisible(true)}
+              onPress={() => setMobileMoneyVisible(true)}
               activeOpacity={0.8}
               disabled={cashPreviewLoading || cashLoading}
             >
@@ -747,9 +747,9 @@ const InventoryList = () => {
         onProductUpdated={handleProductUpdated}
       />
 
-      <PawaPayModal
-        visible={pawaPayVisible}
-        onClose={() => setPawaPayVisible(false)}
+      <MobileMoneyModal
+        visible={mobileMoneyVisible}
+        onClose={() => setMobileMoneyVisible(false)}
         onSuccess={handlePaymentSuccess}
         cart={cart}
         products={products}

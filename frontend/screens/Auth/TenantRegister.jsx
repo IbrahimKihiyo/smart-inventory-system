@@ -31,11 +31,11 @@ const TenantRegister = ({ navigation }) => {
       return;
     }
     if (adminPassword !== confirmPass) {
-      Toast.show({ type: 'error', text1: 'Password Mismatch', text2: 'Passwords do not match.' });
+      Toast.show({ type: 'error', text1: t('toast.passwordMismatch'), text2: t('toast.passwordsNoMatch') });
       return;
     }
     if (adminPassword.length < 8) {
-      Toast.show({ type: 'error', text1: 'Weak Password', text2: 'Password must be at least 8 characters.' });
+      Toast.show({ type: 'error', text1: t('toast.weakPassword'), text2: t('toast.passwordMin') });
       return;
     }
 
@@ -44,8 +44,8 @@ const TenantRegister = ({ navigation }) => {
       const data = await registerTenant(companyName, adminName, adminEmail, adminPassword);
       Toast.show({
         type: 'success',
-        text1: 'Company Registered!',
-        text2: `Welcome, ${data.admin.name}. Your workspace is ready.`,
+        text1: t('toast.companyRegistered'),
+        text2: t('toast.workspaceReady', { name: data.admin.name }),
       });
       // Go to the main app
       navigation.replace('Login'); 
@@ -54,7 +54,7 @@ const TenantRegister = ({ navigation }) => {
       console.error('Response data:', JSON.stringify(err.response?.data, null, 2));
       console.error('Status:', err.response?.status);
     
-      let msg = 'Registration failed. Please try again.';
+      let msg = t('toast.somethingWrong');
       if (err.response?.status === 422) {
         const errs = err.response.data.errors;
         if (errs) {
@@ -64,9 +64,9 @@ const TenantRegister = ({ navigation }) => {
           msg = err.response.data.message || msg;
         }
       } else if (err.message === 'Network Error') {
-        msg = 'Cannot reach server. Check your connection.';
+        msg = t('toast.connError');
       }
-      Toast.show({ type: 'error', text1: 'Registration Failed', text2: msg });
+      Toast.show({ type: 'error', text1: t('toast.registrationFailed'), text2: msg });
     } finally {
       setIsSubmitting(false);
     }

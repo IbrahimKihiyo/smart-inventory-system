@@ -40,7 +40,7 @@ const BuyingAdvisor = () => {
       console.error(error.response?.data || error.message);
       Toast.show({
         type: 'error',
-        text1: 'Failed to load products',
+        text1: t('toast.failedLoadProducts'),
         text2: error.response?.data?.message || error.message,
       });
     } finally {
@@ -83,7 +83,7 @@ const BuyingAdvisor = () => {
       console.error(error.response?.data || error.message);
       Toast.show({
         type: 'error',
-        text1: 'Could not check price',
+        text1: t('toast.couldNotCheckPrice'),
         text2: error.response?.data?.message || error.message,
       });
     } finally {

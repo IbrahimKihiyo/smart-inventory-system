@@ -113,7 +113,7 @@ const EditProductModal = ({ visible, product, onClose, onProductUpdated }) => {
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Failed to load categories',
+        text1: t('toast.failedLoadCategories'),
         text2: error.response?.data?.message || error.message,
       })
     } finally {
@@ -186,8 +186,8 @@ const EditProductModal = ({ visible, product, onClose, onProductUpdated }) => {
     if (!permission.granted) {
       Toast.show({
         type: 'error',
-        text1: 'Permission required',
-        text2: 'Please allow photo library access to change the product image.',
+        text1: t('toast.permissionRequired'),
+        text2: t('toast.photoAccessEdit'),
       })
       return
     }
@@ -285,7 +285,7 @@ const EditProductModal = ({ visible, product, onClose, onProductUpdated }) => {
 
       Toast.show({
         type: 'success',
-        text1: 'Product updated',
+        text1: t('toast.productUpdated'),
         text2: `${updatedData.name} updated successfully.`,
       })
       onClose()
@@ -293,7 +293,7 @@ const EditProductModal = ({ visible, product, onClose, onProductUpdated }) => {
       const msg = error.response?.data?.message || error.message
       Toast.show({
         type: 'error',
-        text1: 'Failed to update product',
+        text1: t('toast.failedUpdateProduct'),
         text2: msg,
       })
       console.error('Error updating product:', error.response?.data || error.message)

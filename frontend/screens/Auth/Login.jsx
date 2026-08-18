@@ -33,14 +33,14 @@ const Login = ({ navigation }) => {
       await login(tenantSlug.toLowerCase().trim(), email, password);
     } catch (err) {
       console.error('Login error:', err);
-      let errorMsg = 'Something went wrong. Please try again.';
+      let errorMsg = t('toast.somethingWrong');
 
       if (err.response?.status === 429) {
         errorMsg = t('login.tooMany');
       } else if (err.response?.status === 401) {
-        errorMsg = 'Invalid email or password.';
+        errorMsg = t('toast.invalidCredentials');
       } else if (err.response?.status === 404) {
-        errorMsg = 'Workspace not found. Check your company slug.';
+        errorMsg = t('toast.workspaceNotFound');
       } else if (err.response?.status === 422) {
         const errs = err.response.data.errors;
         if (errs) {
@@ -50,10 +50,10 @@ const Login = ({ navigation }) => {
           errorMsg = err.response.data.message || errorMsg;
         }
       } else if (err.message === 'Network Error') {
-        errorMsg = 'Network error. Please check your connection.';
+        errorMsg = t('toast.connError');
       }
 
-      Toast.show({ type: 'error', text1: 'Login Failed', text2: errorMsg });
+      Toast.show({ type: 'error', text1: t('toast.loginFailed'), text2: errorMsg });
     } finally {
       setIsSubmitting(false);
     }

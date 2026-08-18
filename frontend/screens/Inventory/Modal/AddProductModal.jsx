@@ -75,7 +75,7 @@ const AddProductModal = ({ visible, onClose, onProductSaved }) => {
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Failed to load categories',
+        text1: t('toast.failedLoadCategories'),
         text2: error.response?.data?.message || error.message,
       })
     } finally {
@@ -149,8 +149,8 @@ const AddProductModal = ({ visible, onClose, onProductSaved }) => {
     if (!permission.granted) {
       Toast.show({
         type: 'error',
-        text1: 'Permission required',
-        text2: 'Please allow photo library access to add a product image.',
+        text1: t('toast.permissionRequired'),
+        text2: t('toast.photoAccessAdd'),
       })
       return
     }
@@ -246,7 +246,7 @@ const AddProductModal = ({ visible, onClose, onProductSaved }) => {
 
       Toast.show({
         type: 'success',
-        text1: 'Product saved',
+        text1: t('toast.productSaved'),
         text2: `${response.data.data.name} added to inventory.`,
       })
 
@@ -271,7 +271,7 @@ const AddProductModal = ({ visible, onClose, onProductSaved }) => {
       const msg = error.response?.data?.message || error.message
       Toast.show({
         type: 'error',
-        text1: 'Failed to save product',
+        text1: t('toast.failedSaveProduct'),
         text2: msg,
       })
       console.error('Error saving product:', error.response?.data || error.message)

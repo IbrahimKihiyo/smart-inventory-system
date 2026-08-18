@@ -39,7 +39,7 @@ const ExpiryAlerts = () => {
       console.error(error.response?.data || error.message);
       Toast.show({
         type: 'error',
-        text1: 'Failed to load alerts',
+        text1: t('toast.failedLoadAlerts'),
         text2: error.response?.data?.message || error.message,
       });
     } finally {

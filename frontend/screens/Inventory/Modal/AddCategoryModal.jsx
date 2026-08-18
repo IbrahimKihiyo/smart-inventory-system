@@ -35,8 +35,8 @@ const AddCategoryModal = ({ visible, onClose }) => {
     if (!trimmedName) {
       Toast.show({
         type: 'error',
-        text1: 'Validation Error',
-        text2: 'Category name cannot be empty. ⚠️',
+        text1: t('toast.validationError'),
+        text2: t('toast.categoryEmpty'),
         position: 'top',
       })
       return 
@@ -52,7 +52,7 @@ const AddCategoryModal = ({ visible, onClose }) => {
       // Success Toast using Laravel's message key
       Toast.show({
         type: 'success',
-        text1: 'Success',
+        text1: t('toast.success'),
         text2: response.data.message || 'Category created successfully! 🎉',
         position: 'top',
       })
@@ -70,7 +70,7 @@ const AddCategoryModal = ({ visible, onClose }) => {
         
         Toast.show({
           type: 'error',
-          text1: 'Validation Failed',
+          text1: t('toast.validationFailed'),
           text2: errorMessage,
           position: 'top',
         })
@@ -78,7 +78,7 @@ const AddCategoryModal = ({ visible, onClose }) => {
         // Handle alternative backend errors or timeout errors
         Toast.show({
           type: 'error',
-          text1: 'Network Error',
+          text1: t('toast.networkError'),
           text2: error.response?.data?.message || 'Could not connect to database.',
           position: 'top',
         })

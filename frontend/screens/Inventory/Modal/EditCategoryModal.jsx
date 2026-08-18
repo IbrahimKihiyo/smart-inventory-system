@@ -54,8 +54,8 @@ const EditCategoryModal = ({ visible, category, onClose, onCategoryUpdated }) =>
 
       Toast.show({
         type: 'success',
-        text1: 'Updated',
-        text2: 'Category updated successfully.',
+        text1: t('toast.updated'),
+        text2: t('toast.categoryUpdated'),
       })
       
       onClose() // Close modal

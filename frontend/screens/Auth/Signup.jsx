@@ -30,18 +30,18 @@ const Signup = ({ navigation }) => {
       return
     }
     if (password !== confirmPassword) {
-      Toast.show({ type: 'error', text1: 'Password Error', text2: 'Passwords do not match.' })
+      Toast.show({ type: 'error', text1: t('toast.passwordError'), text2: t('toast.passwordsNoMatch') })
       return
     }
 
     setIsSubmitting(true)
     try {
       await register(tenantSlug.toLowerCase().trim(), name, email, password)
-      Toast.show({ type: 'success', text1: 'Welcome!', text2: 'Account created successfully.' })
+      Toast.show({ type: 'success', text1: t('toast.welcome'), text2: t('toast.accountCreated') })
       navigation.replace('Login')
     } catch (err) {
       console.error('Signup error:', err)
-      let errorMsg = 'Something went wrong. Please try again.'
+      let errorMsg = t('toast.somethingWrong')
 
       if (err.response?.status === 422) {
         const validationErrors = err.response.data.errors
@@ -52,12 +52,12 @@ const Signup = ({ navigation }) => {
           errorMsg = err.response.data.message || errorMsg
         }
       } else if (err.response?.status === 404) {
-        errorMsg = 'Workspace not found. Check your company slug.'
+        errorMsg = t('toast.workspaceNotFound')
       } else if (err.message === 'Network Error') {
-        errorMsg = 'Cannot connect to server. Check your connection.'
+        errorMsg = t('toast.connError')
       }
 
-      Toast.show({ type: 'error', text1: 'Signup Failed', text2: errorMsg })
+      Toast.show({ type: 'error', text1: t('toast.signupFailed'), text2: errorMsg })
     } finally {
       setIsSubmitting(false)
       setTenantSlug('')

@@ -12,6 +12,7 @@ use App\Http\Controllers\TransactionItemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CreditTransactionController;
 use App\Http\Controllers\CashTransactionController;
+use App\Http\Controllers\MobileTransactionController;
 use App\Http\Controllers\CreditorController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\PurchasePriceController;
@@ -61,6 +62,7 @@ Route::middleware(['tenant'])->group(function () {
         Route::get('/pawapay/deposit-status/{depositId}', [PawaPayController::class, 'checkDepositStatus']);
 
         Route::post('/transactions/cash', [CashTransactionController::class, 'store']);
+        Route::post('/transactions/mobile', [MobileTransactionController::class, 'store']);
         Route::post('/transactions/credit', [CreditTransactionController::class, 'store']);
         Route::patch('/transactions/credit/{id}/repay', [CreditTransactionController::class, 'repay']);
 

@@ -83,8 +83,8 @@ const CategoryList = () => {
       setCategories((prev) => prev.filter((item) => item.id !== id))
       Toast.show({
         type: 'success',
-        text1: 'Deleted',
-        text2: 'Category removed',
+        text1: t('toast.deleted'),
+        text2: t('toast.categoryRemoved'),
       })
     } catch (error) {
       Alert.alert('Error', 'Could not delete category')

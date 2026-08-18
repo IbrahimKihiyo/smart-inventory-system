@@ -113,7 +113,7 @@ const RecordPurchaseModal = ({ visible, product, onClose, onPurchaseRecorded }) 
 
       Toast.show({
         type: 'success',
-        text1: 'Purchase recorded',
+        text1: t('toast.purchaseRecorded'),
         text2: `${product.name} stock topped up and price saved.`,
       })
       onClose()
@@ -121,7 +121,7 @@ const RecordPurchaseModal = ({ visible, product, onClose, onPurchaseRecorded }) 
       const msg = error.response?.data?.message || error.message
       Toast.show({
         type: 'error',
-        text1: 'Failed to record purchase',
+        text1: t('toast.failedPurchase'),
         text2: msg,
       })
       console.error('Error recording purchase:', error.response?.data || error.message)
