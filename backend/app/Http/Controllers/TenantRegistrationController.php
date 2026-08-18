@@ -64,12 +64,12 @@ class TenantRegistrationController extends Controller
         }
 
         try {
-            // ── Step 1: Create PostgreSQL schema ──────────────────────────────
-            // Done OUTSIDE any transaction — PostgreSQL DDL auto-commits and
-            // cannot be rolled back, so we handle cleanup manually on failure.
+            // Step 1: Create the PostgreSQL schema.
+            // This runs outside any transaction because PostgreSQL DDL auto-commits
+            // and cannot be rolled back, so we clean up manually on failure.
             DB::statement("CREATE SCHEMA IF NOT EXISTS \"{$schema}\"");
 
-            // ── Step 2: Create tenant record (landlord DB) ────────────────────
+            // Step 2: Create tenant record (landlord DB)
             $tenant = Tenant::create([
                 'name'     => $validated['company_name'],
                 'slug'     => $slug,
@@ -77,13 +77,13 @@ class TenantRegistrationController extends Controller
                 'database' => $schema,
             ]);
 
-            // ── Step 3: Switch search_path on the tenant connection ───────────
+            // Step 3: Switch search_path on the tenant connection
             $this->switchToSchema($schema);
 
-            // ── Step 4: Run tenant migrations IN THIS PROCESS ─────────────────
+            // Step 4: Run tenant migrations IN THIS PROCESS
             $this->runMigrationsInProcess($schema);
 
-            // ── Step 5: Create admin user in tenant schema ────────────────────
+            // Step 5: Create admin user in tenant schema
             $admin           = new User();
             $admin->name     = $validated['admin_name'];
             $admin->email    = $validated['admin_email'];
@@ -91,10 +91,10 @@ class TenantRegistrationController extends Controller
             $admin->role     = 'admin';
             $admin->save();
 
-            // ── Step 6: Issue Sanctum token ───────────────────────────────────
+            // Step 6: Issue Sanctum token
             $token = $admin->createToken('admin_token')->plainTextToken;
 
-            // ── Step 7: Reset back to public schema ───────────────────────────
+            // Step 7: Reset back to public schema
             $this->switchToSchema('public');
             Tenant::forgetCurrent();
 
@@ -141,7 +141,7 @@ class TenantRegistrationController extends Controller
     /**
      * Switch the tenant DB connection to the given PostgreSQL schema
      * by setting search_path directly on the live PDO connection.
-     * This stays in the current PHP process — no subprocess, no Artisan.
+     * This stays in the current PHP process, with no subprocess or Artisan call.
      */
     private function switchToSchema(string $schema): void
     {
@@ -159,8 +159,8 @@ class TenantRegistrationController extends Controller
     }
 
     /**
-     * Run tenant migrations using Laravel's Migrator directly — same process,
-     * same connection, same search_path. No subprocess spawned by Artisan::call.
+     * Run tenant migrations using Laravel's Migrator directly, in the same
+     * process, connection, and search_path. No subprocess from Artisan::call.
      */
     private function runMigrationsInProcess(string $schema): void
     {
@@ -178,7 +178,7 @@ class TenantRegistrationController extends Controller
         // Path to your tenant migration files
         $migrationPath = database_path('migrations/tenant');
 
-        // Run all pending migrations — returns array of ran migration names
+        // Run all pending migrations and return the names of those that ran
         $migrator->run([$migrationPath], [
             'pretend' => false,
             'step'    => false,

@@ -15,8 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
-import axiosClient from '../../../src/services/axiosClient'; 
-import PawaPayLogo from '../../../assets/Logo/PawaPay.png'; 
+import axiosClient from '../../../src/services/axiosClient';
 
 const COUNTRIES = [
   { label: 'Tanzania', value: 'TZA', currency: 'TZS' },
@@ -325,7 +324,10 @@ const PawaPayModal = ({ visible, onClose, onSuccess, cart = {}, products = [] })
             <Ionicons name="close" size={24} color="#64748B" />
           </TouchableOpacity>
           
-          <Image source={PawaPayLogo} style={styles.logo} resizeMode="contain" />
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+            <Ionicons name="phone-portrait-outline" size={22} color="#4F46E5" />
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A' }}>Mobile Money</Text>
+          </View>
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>COUNTRY</Text>

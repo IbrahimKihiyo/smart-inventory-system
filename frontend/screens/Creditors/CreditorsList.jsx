@@ -100,7 +100,7 @@ const CreditorsList = () => {
     handleRecordPayment(selectedCreditor.id, amt);
   };
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
+  // Helpers
 
   const formatDate = (iso, opts) =>
     iso
@@ -134,7 +134,7 @@ const CreditorsList = () => {
     return Math.max(0, diff);
   };
 
-  // ─── Filter & paginate ────────────────────────────────────────────────────
+  // Filter & paginate
 
   const filteredCreditors = creditors.filter((item) => {
     if (!item.created_at) return true;
@@ -151,7 +151,7 @@ const CreditorsList = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // ─── Status badge helpers ─────────────────────────────────────────────────
+  // Status badge helpers
 
   const getStatusStyles = (status) => {
     switch (status?.toLowerCase()) {
@@ -172,7 +172,7 @@ const CreditorsList = () => {
     }
   };
 
-  // ─── List card ────────────────────────────────────────────────────────────
+  // List card
 
   const renderCreditorItem = ({ item }) => {
     const statusStyle = getStatusStyles(item.status);
@@ -233,7 +233,7 @@ const CreditorsList = () => {
     );
   };
 
-  // ─── Date filter UI ───────────────────────────────────────────────────────
+  // Date filter UI
 
   const renderDateFilter = () => (
     <View style={styles.filterContainer}>
@@ -263,7 +263,7 @@ const CreditorsList = () => {
     </View>
   );
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+  // Render
 
   return (
     <SafeAreaView style={styles.container}>
@@ -290,7 +290,7 @@ const CreditorsList = () => {
         />
       )}
 
-      {/* ── Pagination ── */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <View style={styles.pagination}>
           <TouchableOpacity
@@ -311,7 +311,7 @@ const CreditorsList = () => {
         </View>
       )}
 
-      {/* ── Detail Modal ── */}
+      {/* Detail Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <KeyboardAvoidingView
           style={styles.modalOverlay}
@@ -399,8 +399,8 @@ const CreditorsList = () => {
                   </View>
                 )}
 
-                {/* Repayment section — shows what is paid, what remains, and lets
-                    the owner record a partial or full payment */}
+                {/* Repayment section. Shows what is paid and what remains, and lets
+                    the owner record a partial or full payment. */}
                 {selectedCreditor.amount != null && (() => {
                   const total     = parseFloat(selectedCreditor.amount) || 0;
                   const paid      = parseFloat(selectedCreditor.amount_paid) || 0;
@@ -497,7 +497,7 @@ const CreditorsList = () => {
 export default CreditorsList;
 
 const styles = StyleSheet.create({
-  // ── Layout ────────────────────────────────────────────────────────────────
+  // Layout
   container:       { flex: 1, backgroundColor: '#F2F2F7' },
   pageHeader:      { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 10 },
   pageTitle:       { fontSize: 28, fontWeight: 'bold', color: '#1C1C1E', letterSpacing: 0.5 },
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   emptyText:       { textAlign: 'center', color: '#666666', marginTop: 40 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
-  // ── Date filter ───────────────────────────────────────────────────────────
+  // Date filter
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   dateBtnValue: { fontSize: 13, color: '#1C1C1E', fontWeight: '600' },
   clearBtn:     { padding: 4, justifyContent: 'center', alignItems: 'center' },
 
-  // ── Card ──────────────────────────────────────────────────────────────────
+  // Card
   card: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   providerText:     { fontSize: 16, fontWeight: '700' },
   subText:          { fontSize: 13, color: '#666666', marginTop: 2 },
 
-  // pay_before — list card
+  // Pay before date on the list card
   payBeforeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   statusBadge:      { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginTop: 6 },
   statusText:       { fontSize: 11, fontWeight: '700' },
 
-  // ── Pagination ────────────────────────────────────────────────────────────
+  // Pagination
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
   pageBtnDisabled: { opacity: 0.4 },
   pageInfo:        { fontSize: 14, color: '#666666' },
 
-  // ── Modal ─────────────────────────────────────────────────────────────────
+  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
   },
   modalInfoText: { fontSize: 15, color: '#333333', fontWeight: '600' },
 
-  // pay_before — modal banner
+  // Pay before date in the modal banner
   modalPayBeforeRow: {
     flexDirection: 'row',
     alignItems: 'center',

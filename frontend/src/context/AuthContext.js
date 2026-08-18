@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     API.defaults.headers.common['X-Tenant']      = tenantData.slug;
 
     setTenant(tenantData.slug);
-    setUser(admin);          // ← this triggers automatic navigation
+    setUser(admin);          // this triggers automatic navigation
 
     return response.data;
   };

@@ -101,7 +101,7 @@ return [
 
 
 
-        // In config/database.php — update BOTH landlord and tenant connections:
+        // Landlord and tenant database connections.
 
         'landlord' => [
             'driver'      => 'pgsql',
@@ -113,7 +113,7 @@ return [
             'charset'     => 'utf8',
             'prefix'      => '',
             'prefix_indexes' => true,
-            'search_path' => 'public',   // ← this key, not 'schema'
+            'search_path' => 'public',   // use this key, not schema
             'sslmode'     => 'prefer',
         ],
 

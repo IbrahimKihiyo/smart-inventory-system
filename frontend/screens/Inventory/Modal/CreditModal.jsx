@@ -201,7 +201,7 @@ const CreditModal = ({
               {errors.phone ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
             </View>
 
-            {/* Pay Before Date — HTML date input on web, native picker on device */}
+            {/* Pay before date. HTML date input on web, native picker on device. */}
             <View style={styles.fieldGroup}>
               <Text style={styles.label}>{t('credit.payBefore')}</Text>
               {Platform.OS === 'web' ? (

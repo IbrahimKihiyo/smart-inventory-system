@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
-use App\Models\Product; // ✅ Imported the Product model
+use App\Models\Product;
 
 class PawaPayController extends Controller
 {
@@ -60,7 +60,7 @@ class PawaPayController extends Controller
 
             $user = $request->user();
 
-            // ✅ Convert phone number
+            // Convert phone number
             $mobileNumber = $this->formatTzPhone($validated['mobileNumber']);
 
             // 🔑 Generate unique IDs
@@ -213,7 +213,7 @@ class PawaPayController extends Controller
                         'updated_at'              => now(),
                     ]);
 
-                // 3. ✅ Deduct stock if payment was just completed successfully
+                // Deduct stock if payment was just completed
                 if ($isNewlyCompleted) {
                     $items = DB::connection('tenant')
                         ->table('transaction_items')

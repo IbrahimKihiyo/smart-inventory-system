@@ -73,7 +73,7 @@ class CreditTransactionController extends Controller
 
 
 
-            // ✅ Add Transaction Items
+            // Add transaction items
             foreach ($validated['items'] as $item) {
 
                 $unitPrice = ceil((float) $item['unit_price']);

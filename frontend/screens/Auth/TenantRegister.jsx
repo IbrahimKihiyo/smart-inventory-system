@@ -47,7 +47,7 @@ const TenantRegister = ({ navigation }) => {
         text1: 'Company Registered!',
         text2: `Welcome, ${data.admin.name}. Your workspace is ready.`,
       });
-      // Navigate to main app — adjust to your navigator structure
+      // Go to the main app
       navigation.replace('Login'); 
     } catch (err) {
       console.error('Tenant registration error:', err);

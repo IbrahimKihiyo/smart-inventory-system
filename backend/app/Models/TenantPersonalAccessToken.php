@@ -13,7 +13,7 @@ class TenantPersonalAccessToken extends SanctumToken
     /**
      * Override findToken so Sanctum always queries the tenant connection.
      * This is called statically by Sanctum's Guard before any middleware
-     * has a chance to switch the search_path — so we must set it here.
+     * has a chance to switch the search_path, so we must set it here.
      */
     public static function findToken($token)
     {

@@ -36,7 +36,7 @@ const SCREENS = [
 export default function AppDrawer() {
   const [activeScreen, setActiveScreen] = useState('Dashboard');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false); // ✅ moved from Dashboard
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // moved from Dashboard
   const translateX = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
@@ -64,7 +64,7 @@ export default function AppDrawer() {
     closeDrawer();
   };
 
-  // ✅ Logout logic moved from Dashboard
+  // Logout logic moved from Dashboard
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
@@ -83,7 +83,7 @@ export default function AppDrawer() {
   return (
     <View style={{ flex: 1 }}>
 
-      {/* ─── Header ─── */}
+      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity onPress={openDrawer} style={styles.menuButton}>
           <Ionicons name="menu" size={26} color="#1e293b" />
@@ -94,19 +94,19 @@ export default function AppDrawer() {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* ─── Active Screen ─── */}
+      {/* Active Screen */}
       <View style={{ flex: 1, paddingBottom: insets.bottom }}>
         {ActiveComponent && <ActiveComponent onNavigate={navigateTo} />}
       </View>
 
-      {/* ─── Overlay ─── */}
+      {/* Overlay */}
       {drawerOpen && (
         <TouchableWithoutFeedback onPress={closeDrawer}>
           <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]} />
         </TouchableWithoutFeedback>
       )}
 
-      {/* ─── Drawer Panel ─── */}
+      {/* Drawer Panel */}
       <Animated.View style={[styles.drawer, { transform: [{ translateX }] }]}>
 
         {/* Drawer Header */}
@@ -152,7 +152,7 @@ export default function AppDrawer() {
           <LanguageSwitcher showIcon={false} />
         </View>
 
-        {/* ✅ Logout with loading state and Toast */}
+        {/* Logout with loading state and Toast */}
         <TouchableOpacity
           style={[styles.logoutButton, { paddingBottom: insets.bottom + 12 }]}
           onPress={handleLogout}

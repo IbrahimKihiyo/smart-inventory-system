@@ -16,14 +16,7 @@ import { useLanguage } from '../../src/context/LanguageContext';
 
 const PRIMARY = '#4F46E5';
 
-/**
- * Buying Advisor (FR13).
- *
- * Shows each product's benchmark — the average of its last three purchase
- * prices — and lets the shop owner type today's market price to get an
- * instant BUY / WAIT recommendation. The decision itself is made by the
- * backend (POST /purchase-check).
- */
+
 const BuyingAdvisor = () => {
   const { t } = useLanguage();
   const [items, setItems] = useState([]);

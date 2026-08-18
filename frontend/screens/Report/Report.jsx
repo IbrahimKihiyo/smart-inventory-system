@@ -64,8 +64,8 @@ const Report = () => {
         responseType: 'arraybuffer'
       });
 
-      // On web, expo-file-system / Sharing are unavailable — open the PDF in a
-      // new tab (viewable and printable), falling back to a direct download.
+      // On web, expo-file-system and Sharing are unavailable, so open the PDF
+      // in a new tab (viewable and printable) or fall back to a download.
       if (Platform.OS === 'web') {
         const blob = new Blob([response.data], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);

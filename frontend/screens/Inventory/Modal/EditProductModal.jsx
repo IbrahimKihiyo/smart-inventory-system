@@ -475,7 +475,7 @@ const EditProductModal = ({ visible, product, onClose, onProductUpdated }) => {
                   </View>
                 </View>
 
-                {/* Suggested selling price — pricing guidance from the buying price */}
+                {/* Suggested selling price based on the buying price */}
                 {buying_price.trim() !== '' && !isNaN(parseFloat(buying_price)) && parseFloat(buying_price) > 0 && (
                   <View style={styles.suggestionBox}>
                     <Text style={styles.suggestionLabel}>{t('prod.suggestedPrice')}</Text>
@@ -502,7 +502,7 @@ const EditProductModal = ({ visible, product, onClose, onProductUpdated }) => {
                   </View>
                 )}
 
-                {/* Expiry Date Field — native picker on device, HTML date input on web */}
+                {/* Expiry date. Native picker on device, HTML date input on web. */}
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>{t('prod.expiryDate')}</Text>
                   {Platform.OS === 'web' ? (

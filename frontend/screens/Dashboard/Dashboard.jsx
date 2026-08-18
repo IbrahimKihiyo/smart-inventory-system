@@ -153,7 +153,7 @@ const Dashboard = ({ onNavigate }) => {
           {renderDateFilter()}
         </View>
 
-        {/* Expiry Alert Banner (FR06) — shows on login when stock is expired or expiring soon */}
+        {/* Expiry alert banner (FR06). Shows on login when stock is expired or expiring soon. */}
         {alertSummary && (alertSummary.expired_count + alertSummary.expiring_soon_count) > 0 && (
           <TouchableOpacity
             activeOpacity={0.8}
@@ -178,7 +178,7 @@ const Dashboard = ({ onNavigate }) => {
           </TouchableOpacity>
         )}
 
-        {/* Credit Reminder Banner (FR10) — reminds owner of overdue / soon-due debts on login */}
+        {/* Credit reminder banner (FR10). Reminds the owner of overdue debts on login. */}
         {creditReminders && (creditReminders.overdue_count + creditReminders.due_soon_count) > 0 && (
           <TouchableOpacity
             activeOpacity={0.8}

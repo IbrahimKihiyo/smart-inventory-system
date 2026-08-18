@@ -21,7 +21,7 @@ class Tenant extends BaseTenant
         return $this->database;
     }
 
-    // ← NO booted() hook here anymore
+    // No booted() hook here anymore
     // Schema is created explicitly in TenantRegistrationController
     // before DB::beginTransaction() to avoid transaction-inside-DDL issues
 }

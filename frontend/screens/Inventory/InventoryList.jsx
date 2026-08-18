@@ -23,7 +23,6 @@ import Toast from 'react-native-toast-message';
 import PawaPayModal from './Modal/PawaPayModal';
 import CreditModal from './Modal/CreditModal';
 import RecordPurchaseModal from './Modal/RecordPurchaseModal';
-import PawaPayLogo from '../../assets/Logo/PawaPay.png';
 import { useLanguage } from '../../src/context/LanguageContext';
 
 const PRIMARY = '#4F46E5';
@@ -678,12 +677,8 @@ const InventoryList = () => {
               disabled={cashPreviewLoading || cashLoading}
             >
               <View style={styles.pawaPayContent}>
-                <Image
-                  source={PawaPayLogo}
-                  style={styles.pawaPayInlineLogo}
-                  resizeMode="contain"
-                />
-                <Text style={styles.pawaPayBtnText}>PawaPay</Text>
+                <Ionicons name="phone-portrait-outline" size={16} color="#0F172A" />
+                <Text style={styles.pawaPayBtnText}>{t('inv.mobileMoney')}</Text>
               </View>
             </TouchableOpacity>
           </View>
