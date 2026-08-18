@@ -85,6 +85,8 @@ export default function AssistantChat() {
     if (has('most profit', 'most profitable', 'highest profit', 'best margin', 'faida zaidi', 'faida kubwa', 'inayoleta faida', 'zenye faida')) return 'mostProfitable';
     if (has('how is my business', 'business doing', 'business summary', 'how is business', 'hali ya biashara', 'biashara inaendelea', 'biashara yangu', 'muhtasari')) return 'businessHealth';
     if (has('increase', 'improve', 'grow', 'more profit', 'more sales', 'boost', 'how do i', 'how can i', 'how to', 'what should i do', 'what do i do', 'advice', 'recommend', 'suggest', 'kuongeza', 'ongeza faida', 'ongeza mauzo', 'boresha', 'nifanyaje', 'nifanye nini', 'ushauri', 'nishauri', 'pendekezo', 'nikuze')) return 'advice';
+    if (has('slow', 'not selling', 'not sold', 'dead stock', 'unsold', 'stuck', 'hazitembei', 'hazijauzwa', 'zisizouzwa', 'mtaji uliolala', 'zilizokwama')) return 'slowMovers';
+    if (has('reorder', 're-order', 'how much to order', 'how much to restock', 'restock', 'order more', 'niagize', 'kiasi cha kuagiza', 'ninunue kiasi', 'niongeze stoo')) return 'reorder';
     if (has('expir', 'expire', 'kuisha', 'zinazoisha', 'muda wa')) return 'expiry';
     if (has('low stock', 'out of stock', 'running low', 'hisa', 'stoo', 'pungufu', 'zinakwisha')) return 'lowstock';
     if (has('debt', 'credit', 'owe', 'borrow', 'deni', 'madeni', 'wadeni', 'mkopo', 'nadai', 'ananidai')) return 'creditors';
@@ -167,6 +169,35 @@ export default function AssistantChat() {
         });
         return summary + (Number(m.total_profit) > 0 ? t('advice.healthGood') : t('advice.healthWatch'));
       }
+      case 'reorder': {
+        const products = asList((await axiosClient.get('/products')).data);
+        const low = products.filter((p) => Number(p.stock) <= LOW_STOCK_LEVEL);
+        if (!low.length) return t('advice.noReorder');
+        const TARGET = 30; // a healthy shelf level to reorder up to
+        const items = low
+          .map((p) => `${p.name}: ${Math.max(TARGET - Number(p.stock), 0)}`)
+          .join(', ');
+        return t('advice.reorder', { items });
+      }
+      case 'slowMovers': {
+        // Look back 30 days so "not selling" is meaningful, not just today.
+        const start = new Date();
+        start.setDate(start.getDate() - 30);
+        const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const [pRes, mRes] = await Promise.all([
+          axiosClient.get('/products'),
+          axiosClient.get('/dashboard/metrics', { params: { start_date: ymd(start), end_date: ymd(new Date()) } }),
+        ]);
+        const products = asList(pRes.data);
+        const soldNames = new Set((mRes.data.metrics.top_products || []).map((x) => x.name));
+        const slow = products
+          .filter((p) => Number(p.stock) > 0 && !soldNames.has(p.name))
+          .map((p) => ({ name: p.name, value: Number(p.stock) * (Number(p.buying_price) || 0) }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 6);
+        if (!slow.length) return t('advice.noSlow');
+        return t('advice.slowMovers', { items: slow.map((p) => `${p.name} (${money(p.value)})`).join(', ') });
+      }
       default:
         return t('bot.fallback');
     }
@@ -200,6 +231,8 @@ export default function AssistantChat() {
     { key: 'mostProfitable', label: t('bot.chipMostProfit') },
     { key: 'expiry', label: t('bot.chipExpiry') },
     { key: 'lowstock', label: t('bot.chipLowStock') },
+    { key: 'reorder', label: t('bot.chipReorder') },
+    { key: 'slowMovers', label: t('bot.chipSlow') },
     { key: 'creditors', label: t('bot.chipCreditors') },
     { key: 'inventory', label: t('bot.chipInventory') },
     { key: 'businessHealth', label: t('bot.chipHealth') },
