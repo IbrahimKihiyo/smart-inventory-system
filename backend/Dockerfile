@@ -49,5 +49,6 @@ RUN set -eu; \
 # Render supplies the port to listen on in $PORT.
 CMD sh -c "php artisan config:clear \
   && php artisan migrate --database=landlord --path=database/migrations/landlord --force \
+  && (php artisan tenants:migrate || true) \
   && (php artisan storage:link || true) \
   && php artisan serve --host 0.0.0.0 --port ${PORT:-8000}"

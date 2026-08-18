@@ -245,6 +245,22 @@ const Dashboard = ({ onNavigate }) => {
                 </Text>
               </View>
 
+              {/* ================= NET PROFIT CARD ================= */}
+              <View className="mx-6 mt-4 bg-white rounded-[28px] p-6 border border-indigo-100 shadow-sm">
+                <Text className="text-indigo-600 text-[10px] font-bold uppercase tracking-wider">
+                  {t('dash.netProfit')}
+                </Text>
+                <Text className="text-3xl font-black text-slate-900 mt-2">
+                  {formatCurrency(metrics.net_profit)}
+                </Text>
+                <View className="flex-row justify-between mt-3">
+                  <Text className="text-slate-400 text-xs">{t('dash.netProfitSub')}</Text>
+                  <Text className="text-slate-500 text-xs font-semibold">
+                    {t('dash.totalExpenses')}: {formatCurrency(metrics.total_expenses)}
+                  </Text>
+                </View>
+              </View>
+
               {/* ================= STATS CARDS ================= */}
               <View className="px-6 mt-6 flex-row justify-between">
                 <View className="w-[48%] bg-white rounded-2xl border border-slate-100 p-4">

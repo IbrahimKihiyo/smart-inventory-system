@@ -17,6 +17,7 @@ use App\Http\Controllers\CreditorController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\PurchasePriceController;
 use App\Http\Controllers\ExpiryAlertController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CreditReminderController;
 
 // ─── Public: Tenant Registration (no tenant context needed) ──────────────────
@@ -63,6 +64,10 @@ Route::middleware(['tenant'])->group(function () {
 
         Route::post('/transactions/cash', [CashTransactionController::class, 'store']);
         Route::post('/transactions/mobile', [MobileTransactionController::class, 'store']);
+
+        Route::get('/expenses', [ExpenseController::class, 'index']);
+        Route::post('/expenses', [ExpenseController::class, 'store']);
+        Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy']);
         Route::post('/transactions/credit', [CreditTransactionController::class, 'store']);
         Route::patch('/transactions/credit/{id}/repay', [CreditTransactionController::class, 'repay']);
 

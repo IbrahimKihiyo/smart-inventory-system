@@ -90,6 +90,7 @@ export default function AssistantChat() {
     if (has('expir', 'expire', 'kuisha', 'zinazoisha', 'muda wa')) return 'expiry';
     if (has('low stock', 'out of stock', 'running low', 'hisa', 'stoo', 'pungufu', 'zinakwisha')) return 'lowstock';
     if (has('debt', 'credit', 'owe', 'borrow', 'deni', 'madeni', 'wadeni', 'mkopo', 'nadai', 'ananidai')) return 'creditors';
+    if (has('spend', 'spent', 'expense', 'expenses', 'matumizi', 'nimetumia', 'nilitumia', 'gharama')) return 'expenses';
     if (has('profit', 'faida')) return 'profit';
     if (has('sale', 'sales', 'sold', 'revenue', 'mauzo', 'uza')) return 'sales';
     if (has('top', 'best', 'most sold', 'popular', 'zaidi', 'bora', 'inayouzwa')) return 'top';
@@ -114,6 +115,10 @@ export default function AssistantChat() {
       case 'profit': {
         const m = (await axiosClient.get('/dashboard/metrics')).data.metrics;
         return t('bot.profitAnswer', { profit: money(m.total_profit) });
+      }
+      case 'expenses': {
+        const m = (await axiosClient.get('/dashboard/metrics')).data.metrics;
+        return t('bot.expensesAnswer', { spent: money(m.total_expenses), net: money(m.net_profit) });
       }
       case 'creditors': {
         const m = (await axiosClient.get('/dashboard/metrics')).data.metrics;
@@ -234,6 +239,7 @@ export default function AssistantChat() {
     { key: 'reorder', label: t('bot.chipReorder') },
     { key: 'slowMovers', label: t('bot.chipSlow') },
     { key: 'creditors', label: t('bot.chipCreditors') },
+    { key: 'expenses', label: t('bot.chipExpenses') },
     { key: 'inventory', label: t('bot.chipInventory') },
     { key: 'businessHealth', label: t('bot.chipHealth') },
   ];

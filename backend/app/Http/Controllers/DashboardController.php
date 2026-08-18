@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Models\Expense;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -191,6 +192,14 @@ class DashboardController extends Controller
                 ->selectRaw('SUM((transaction_items.unit_price - products.buying_price) * transaction_items.quantity) as total_profit')
                 ->value('total_profit');
 
+            // Total business expenses in the same date range, and the resulting net profit.
+            $totalExpenses = (float) Expense::whereBetween('expense_date', [
+                $startDate->toDateString(),
+                $endDate->toDateString(),
+            ])->sum('amount');
+
+            $netProfit = (float) ($totalProfit ?? 0) - $totalExpenses;
+
             /*
             |--------------------------------------------------------------------------
             | RESPONSE
@@ -206,6 +215,8 @@ class DashboardController extends Controller
                     'total_transactions' => $totalTransactions,
                     'pending_credit_amount_tzs' => round($pendingCreditAmountTzs, 2),
                     'total_profit' => round($totalProfit ?? 0, 2),
+                    'total_expenses' => round($totalExpenses, 2),
+                    'net_profit' => round($netProfit, 2),
                     'top_products' => $topProducts,
                     'conversion_breakdown' => $conversionBreakdown,
                 ]
