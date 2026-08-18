@@ -43,11 +43,48 @@ export default function AssistantChat() {
   const asList = (data) =>
     Array.isArray(data) ? data : data?.data || data?.products || data?.categories || [];
 
+  // Pull the shop's key figures together so advice can reason across them.
+  const gatherContext = async () => {
+    const [mRes, eRes, pRes] = await Promise.all([
+      axiosClient.get('/dashboard/metrics'),
+      axiosClient.get('/products/expiry-alerts'),
+      axiosClient.get('/products'),
+    ]);
+    const metrics = mRes.data.metrics || {};
+    const expired = eRes.data.expired || [];
+    const soon = eRes.data.expiring_soon || [];
+    const products = asList(pRes.data);
+    const lowStock = products.filter((p) => Number(p.stock) <= LOW_STOCK_LEVEL);
+    const thinMargin = products.filter((p) => {
+      const price = Number(p.price) || 0;
+      const buy = Number(p.buying_price) || 0;
+      return price > 0 && buy > 0 && (price - buy) / price < 0.2;
+    });
+    const bestSeller = (metrics.top_products || [])[0];
+    return { metrics, expired, soon, products, lowStock, thinMargin, bestSeller };
+  };
+
+  // Turn the figures into concrete, ranked actions the owner can take.
+  const buildAdvice = (ctx) => {
+    const tips = [];
+    if (ctx.bestSeller) tips.push(t('advice.pushBestSeller', { name: ctx.bestSeller.name, sold: ctx.bestSeller.total_sold }));
+    if (ctx.soon.length) tips.push(t('advice.sellExpiring', { count: ctx.soon.length, items: ctx.soon.map((p) => p.name).join(', ') }));
+    if (ctx.expired.length) tips.push(t('advice.removeExpired', { count: ctx.expired.length, items: ctx.expired.map((p) => p.name).join(', ') }));
+    if (ctx.lowStock.length) tips.push(t('advice.restockLow', { count: ctx.lowStock.length, items: ctx.lowStock.map((p) => p.name).join(', ') }));
+    if (Number(ctx.metrics.pending_credit_amount_tzs) > 0) tips.push(t('advice.collectCredit', { amount: money(ctx.metrics.pending_credit_amount_tzs) }));
+    if (ctx.thinMargin.length) tips.push(t('advice.thinMargin', { items: ctx.thinMargin.slice(0, 5).map((p) => p.name).join(', ') }));
+    if (tips.length === 0) tips.push(t('advice.allGood'));
+    return t('advice.header') + '\n' + tips.join('\n');
+  };
+
   const detectIntent = (raw) => {
     const s = (raw || '').toLowerCase();
     const has = (...keys) => keys.some((k) => s.includes(k));
     if (has('help', 'what can you', 'msaada', 'unaweza', 'unafanya', 'nisaidie')) return 'help';
     if (has('hello', 'hi ', 'hey', 'habari', 'mambo', 'vipi', 'hujambo', 'salama', 'shikamoo')) return 'greeting';
+    if (has('most profit', 'most profitable', 'highest profit', 'best margin', 'faida zaidi', 'faida kubwa', 'inayoleta faida', 'zenye faida')) return 'mostProfitable';
+    if (has('how is my business', 'business doing', 'business summary', 'how is business', 'hali ya biashara', 'biashara inaendelea', 'biashara yangu', 'muhtasari')) return 'businessHealth';
+    if (has('increase', 'improve', 'grow', 'more profit', 'more sales', 'boost', 'how do i', 'how can i', 'how to', 'what should i do', 'what do i do', 'advice', 'recommend', 'suggest', 'kuongeza', 'ongeza faida', 'ongeza mauzo', 'boresha', 'nifanyaje', 'nifanye nini', 'ushauri', 'nishauri', 'pendekezo', 'nikuze')) return 'advice';
     if (has('expir', 'expire', 'kuisha', 'zinazoisha', 'muda wa')) return 'expiry';
     if (has('low stock', 'out of stock', 'running low', 'hisa', 'stoo', 'pungufu', 'zinakwisha')) return 'lowstock';
     if (has('debt', 'credit', 'owe', 'borrow', 'deni', 'madeni', 'wadeni', 'mkopo', 'nadai', 'ananidai')) return 'creditors';
@@ -107,6 +144,29 @@ export default function AssistantChat() {
         const categories = asList((await axiosClient.get('/categories')).data);
         return t('bot.inventoryAnswer', { products: products.length, categories: categories.length });
       }
+      case 'advice':
+        return buildAdvice(await gatherContext());
+      case 'mostProfitable': {
+        const ranked = asList((await axiosClient.get('/products')).data)
+          .map((p) => ({ name: p.name, margin: (Number(p.price) || 0) - (Number(p.buying_price) || 0) }))
+          .filter((p) => p.margin > 0)
+          .sort((a, b) => b.margin - a.margin)
+          .slice(0, 5);
+        if (!ranked.length) return t('advice.noMargin');
+        return t('advice.marginHeader', { items: ranked.map((p) => `${p.name} (${money(p.margin)})`).join(', ') });
+      }
+      case 'businessHealth': {
+        const ctx = await gatherContext();
+        const m = ctx.metrics;
+        const summary = t('advice.health', {
+          sales: money(m.total_amount_tzs),
+          profit: money(m.total_profit),
+          credit: money(m.pending_credit_amount_tzs),
+          low: ctx.lowStock.length,
+          expiring: ctx.soon.length + ctx.expired.length,
+        });
+        return summary + (Number(m.total_profit) > 0 ? t('advice.healthGood') : t('advice.healthWatch'));
+      }
       default:
         return t('bot.fallback');
     }
@@ -134,12 +194,15 @@ export default function AssistantChat() {
   };
 
   const chips = [
+    { key: 'advice', label: t('bot.chipAdvice') },
     { key: 'sales', label: t('bot.chipSales') },
     { key: 'profit', label: t('bot.chipProfit') },
+    { key: 'mostProfitable', label: t('bot.chipMostProfit') },
     { key: 'expiry', label: t('bot.chipExpiry') },
     { key: 'lowstock', label: t('bot.chipLowStock') },
     { key: 'creditors', label: t('bot.chipCreditors') },
     { key: 'inventory', label: t('bot.chipInventory') },
+    { key: 'businessHealth', label: t('bot.chipHealth') },
   ];
 
   return (
