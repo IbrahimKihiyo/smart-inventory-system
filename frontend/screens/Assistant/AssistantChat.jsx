@@ -64,6 +64,10 @@ export default function AssistantChat() {
     return { metrics, expired, soon, products, lowStock, thinMargin, bestSeller };
   };
 
+  // Smart analytics computed on the server: demand forecast, reorder point,
+  // and anomaly detection, all from the shop's own sales history.
+  const getAnalytics = async () => (await axiosClient.get('/analytics/insights')).data.analytics;
+
   // Turn the figures into concrete, ranked actions the owner can take.
   const buildAdvice = (ctx) => {
     const tips = [];
@@ -82,6 +86,9 @@ export default function AssistantChat() {
     const has = (...keys) => keys.some((k) => s.includes(k));
     if (has('help', 'what can you', 'msaada', 'unaweza', 'unafanya', 'nisaidie')) return 'help';
     if (has('hello', 'hi ', 'hey', 'habari', 'mambo', 'vipi', 'hujambo', 'salama', 'shikamoo')) return 'greeting';
+    if (has('forecast', 'predict', 'future', 'next week', 'demand', 'expect', 'will i sell', 'utabiri', 'baadaye', 'wiki ijayo', 'mahitaji', 'nitauza', 'matarajio')) return 'forecast';
+    if (has('anomaly', 'unusual', 'abnormal', 'strange', 'spike', 'sudden', 'odd day', 'isiyo ya kawaida', 'isivyo kawaida', 'ghafla', 'mshtuko', 'tofauti kubwa')) return 'anomaly';
+    if (has('buy', 'purchase', 'buying advice', 'should i buy', 'worth buying', 'good price', 'market price', 'nunua', 'kununua', 'manunuzi', 'bei ya soko', 'wakati wa kununua')) return 'buying';
     if (has('most profit', 'most profitable', 'highest profit', 'best margin', 'faida zaidi', 'faida kubwa', 'inayoleta faida', 'zenye faida')) return 'mostProfitable';
     if (has('how is my business', 'business doing', 'business summary', 'how is business', 'hali ya biashara', 'biashara inaendelea', 'biashara yangu', 'muhtasari')) return 'businessHealth';
     if (has('increase', 'improve', 'grow', 'more profit', 'more sales', 'boost', 'how do i', 'how can i', 'how to', 'what should i do', 'what do i do', 'advice', 'recommend', 'suggest', 'kuongeza', 'ongeza faida', 'ongeza mauzo', 'boresha', 'nifanyaje', 'nifanye nini', 'ushauri', 'nishauri', 'pendekezo', 'nikuze')) return 'advice';
@@ -98,7 +105,7 @@ export default function AssistantChat() {
     return 'fallback';
   };
 
-  const answer = async (intent) => {
+  const answer = async (intent, userText = '') => {
     switch (intent) {
       case 'help':
         return t('bot.help');
@@ -175,14 +182,79 @@ export default function AssistantChat() {
         return summary + (Number(m.total_profit) > 0 ? t('advice.healthGood') : t('advice.healthWatch'));
       }
       case 'reorder': {
-        const products = asList((await axiosClient.get('/products')).data);
-        const low = products.filter((p) => Number(p.stock) <= LOW_STOCK_LEVEL);
-        if (!low.length) return t('advice.noReorder');
-        const TARGET = 30; // a healthy shelf level to reorder up to
-        const items = low
-          .map((p) => `${p.name}: ${Math.max(TARGET - Number(p.stock), 0)}`)
+        // Reorder point = average daily demand x lead time + safety stock (server side).
+        const a = await getAnalytics();
+        const list = a?.reorder || [];
+        if (!list.length) return t('advice.noReorder');
+        const items = list
+          .slice(0, 8)
+          .map((p) => `${p.name}: ${p.suggested_order_qty}`)
           .join(', ');
         return t('advice.reorder', { items });
+      }
+      case 'forecast': {
+        const a = await getAnalytics();
+        const list = a?.forecasts || [];
+        if (!list.length) return t('advice.noForecast');
+        const items = list
+          .slice(0, 6)
+          .map((p) => t('advice.forecastItem', { name: p.name, qty: p.forecast_next_7, days: p.days_cover }))
+          .join('\n');
+        return t('advice.forecastHeader', { days: a.period_days }) + '\n' + items;
+      }
+      case 'anomaly': {
+        const a = await getAnalytics();
+        const days = a?.anomalies?.days || [];
+        if (!days.length) return t('advice.noAnomaly');
+        const items = days
+          .map((d) => t('advice.anomalyItem', {
+            date: d.date,
+            amount: money(d.amount),
+            pct: d.deviation_pct,
+            kind: t(d.type === 'HIGH' ? 'advice.anomalyHigh' : 'advice.anomalyLow'),
+          }))
+          .join('\n');
+        return t('advice.anomalyHeader') + '\n' + items;
+      }
+      case 'buying': {
+        // Buying advice (the former Buying Advisor, now inside the assistant).
+        // If the message names a product and a price, run the decision engine;
+        // otherwise show the recent buying benchmarks for all products.
+        const products = asList((await axiosClient.get('/products')).data);
+        const lower = (userText || '').toLowerCase();
+        const nums = (userText.match(/[\d][\d,]*(?:\.\d+)?/g) || [])
+          .map((s) => parseFloat(s.replace(/,/g, '')))
+          .filter((n) => !isNaN(n) && n > 0);
+        const price = nums.length ? Math.max(...nums) : null;
+        const match = products.find((p) => p.name && lower.includes(String(p.name).toLowerCase()));
+
+        if (match && price) {
+          const r = (await axiosClient.post('/purchase-check', { product_id: match.id, market_price: price })).data;
+          if (r.suggestion === 'INSUFFICIENT_DATA') return t('buy.insufficient', { name: match.name });
+          const verdict = r.suggestion === 'BUY' ? t('buy.yes') : t('buy.wait');
+          const lines = [t('buy.head', { name: match.name, price: money(r.market_price), verdict })];
+          lines.push(t('buy.avg', { avg: money(r.average_last_three), trend: t('buy.trend' + r.trend) }));
+          if (r.recommended_max_price) lines.push(t('buy.maxbuy', { max: money(r.recommended_max_price) }));
+          if (r.margin_at_market_price !== null && r.margin_at_market_price !== undefined) {
+            lines.push(t('buy.margin', { pct: r.margin_at_market_price }));
+          }
+          if (r.warning === 'LOSS') lines.push(t('buy.warnLoss'));
+          else if (r.warning === 'THIN') lines.push(t('buy.warnThin'));
+          return lines.join('\n');
+        }
+
+        const recs = asList((await axiosClient.get('/purchase-recommendations')).data)
+          .filter((p) => p.average_last_three);
+        if (!recs.length) return t('buy.noData');
+        const items = recs
+          .slice(0, 8)
+          .map((p) => t('buy.recItem', {
+            name: p.name,
+            avg: money(p.average_last_three),
+            latest: p.latest_price != null ? money(p.latest_price) : '-',
+          }))
+          .join('\n');
+        return t('buy.recHead') + '\n' + items + '\n' + t('buy.recTip');
       }
       case 'slowMovers': {
         // Look back 30 days so "not selling" is meaningful, not just today.
@@ -213,7 +285,7 @@ export default function AssistantChat() {
     push('user', userText);
     setBusy(true);
     try {
-      push('bot', await answer(intent));
+      push('bot', await answer(intent, userText));
     } catch (error) {
       console.error(error.response?.data || error.message);
       push('bot', t('bot.error'));
@@ -234,9 +306,12 @@ export default function AssistantChat() {
     { key: 'sales', label: t('bot.chipSales') },
     { key: 'profit', label: t('bot.chipProfit') },
     { key: 'mostProfitable', label: t('bot.chipMostProfit') },
+    { key: 'buying', label: t('bot.chipBuying') },
     { key: 'expiry', label: t('bot.chipExpiry') },
     { key: 'lowstock', label: t('bot.chipLowStock') },
+    { key: 'forecast', label: t('bot.chipForecast') },
     { key: 'reorder', label: t('bot.chipReorder') },
+    { key: 'anomaly', label: t('bot.chipAnomaly') },
     { key: 'slowMovers', label: t('bot.chipSlow') },
     { key: 'creditors', label: t('bot.chipCreditors') },
     { key: 'expenses', label: t('bot.chipExpenses') },

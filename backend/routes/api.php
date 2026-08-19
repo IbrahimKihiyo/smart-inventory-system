@@ -19,6 +19,7 @@ use App\Http\Controllers\PurchasePriceController;
 use App\Http\Controllers\ExpiryAlertController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CreditReminderController;
+use App\Http\Controllers\AnalyticsController;
 
 // ─── Public: Tenant Registration (no tenant context needed) ──────────────────
 Route::post('/tenants/register', [TenantRegistrationController::class, 'register'])
@@ -36,6 +37,9 @@ Route::middleware(['tenant'])->group(function () {
         Route::get('/user',    [AuthController::class, 'user']);
 
         Route::get('/dashboard/metrics', [DashboardController::class, 'getMetrics']);
+
+        // Smart analytics: demand forecast, reorder point, anomaly detection
+        Route::get('/analytics/insights', [AnalyticsController::class, 'insights']);
 
         // Categories
         Route::get('/categories',              [CategoryController::class, 'index']);

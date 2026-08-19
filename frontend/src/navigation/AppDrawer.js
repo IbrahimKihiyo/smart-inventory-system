@@ -16,7 +16,6 @@ import CategoryList from '../../screens/Inventory/CategoryList';
 import TransactionList from '../../screens/Transaction/TransactionList';
 import CreditorsList from '../../screens/Creditors/CreditorsList';
 import Report from '../../screens/Report/Report';
-import BuyingAdvisor from '../../screens/BuyingAdvisor/BuyingAdvisor';
 import ExpiryAlerts from '../../screens/Alerts/ExpiryAlerts';
 import AssistantChat from '../../screens/Assistant/AssistantChat';
 import ExpensesList from '../../screens/Expenses/ExpensesList';
@@ -31,7 +30,6 @@ const SCREENS = [
   { name: 'Transactions', labelKey: 'nav.transactions', component: TransactionList, icon: 'swap-horizontal-outline', iconFocused: 'swap-horizontal' },
   { name: 'Creditors', labelKey: 'nav.creditors', component: CreditorsList, icon: 'people-outline', iconFocused: 'people' },
   { name: 'Expenses', labelKey: 'nav.expenses', component: ExpensesList, icon: 'wallet-outline', iconFocused: 'wallet' },
-  { name: 'Buying Advisor', labelKey: 'nav.buyingAdvisor', component: BuyingAdvisor, icon: 'trending-up-outline', iconFocused: 'trending-up' },
   { name: 'Assistant', labelKey: 'nav.assistant', component: AssistantChat, icon: 'chatbubbles-outline', iconFocused: 'chatbubbles' },
   { name: 'Report', labelKey: 'nav.report', component: Report, icon: 'documents-outline', iconFocused: 'documents' },
 
